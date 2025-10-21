@@ -27,7 +27,8 @@ function Landing(){
         <Link className="Specifics" to='/signIn'> Sign In</Link>
         <Link className="Specifics" to="/Login"> Log In</Link>
         <Link className="Specifics" to='/session'>Book a session </Link>
-
+        <Link className="Specifics" to='/chatRoom'>ChatRoom</Link>
+        
         </div>
       <div className='body'>
         <div className='group'>

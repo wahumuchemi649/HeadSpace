@@ -70,7 +70,7 @@ function Cards({onselect}){
 }
 function Time({selectedTime,setSelectedTime}){
     const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
-    const slots=['8:00 am', '10:00am', '12:00 noon','2:00pm','4:00pm','6:00pm']
+    const slots=['8:00 ', '10:00', '12:00 ','2:00','4:00','6:00']
 
     return(
         <div className='schedule-container'>
@@ -129,9 +129,13 @@ function Booking(){
             return
         }
 
+        const[days,slots] =selectedTime.split('-')
+         const formattedTime = `${slots.trim()}:00`
+
         const booking_data={
           therapist_id:selectedTherapist.id,
-          time:selectedTime,
+          day:days,
+          time:formattedTime,
           reason
         }
         try{
@@ -148,6 +152,7 @@ function Booking(){
             }
             else{
                 alert('Something went wrong')
+                console.log(error)
             }
         }
         catch(err){

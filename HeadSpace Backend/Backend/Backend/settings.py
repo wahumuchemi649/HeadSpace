@@ -40,8 +40,10 @@ INSTALLED_APPS = [
     'therapy',
     'patients',
     'consultation',
+    'chatRoom',
     'rest_framework',
     'corsheaders',
+    'channels',
     
 ]
 
@@ -76,7 +78,18 @@ TEMPLATES = [
     },
 ]
 
+ASGI_APPLICATION = 'Backend.asgi.application'
 WSGI_APPLICATION = 'Backend.wsgi.application'
+
+# Channels Layer (for Redis)
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 
 # Database

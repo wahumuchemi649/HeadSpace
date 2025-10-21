@@ -10,6 +10,7 @@ def session(request):
     if request.method=="POST":
         data =json.loads(request.body)
         therapist_id=data.get('therapist_id')
+        print("Therapist ID received:", therapist_id)
         time= data.get('time')
         reason=data.get('reason')
 
@@ -22,7 +23,9 @@ def session(request):
             time=time,
             reason=reason
         )
+        
 
         return JsonResponse({'message':"Booking Saved", 'id':booking.id})
+                 
     
 
