@@ -8,8 +8,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('therapy.urls')),
     path('api/',include('patients.urls')),
-    path('',include('consultation.urls'))
+    path('',include('consultation.urls')),
+    path('chat/',include('chatRoom.urls'))
 ]
+    
+
 
 if settings.DEBUG:  # only serve media in development
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

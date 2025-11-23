@@ -1,8 +1,10 @@
 import { useState } from "react";
 import Api_Base from "./Api";
 import  './SignIn.css'
+import { useNavigate } from "react-router-dom";
 
 function SignIn() {
+  const Navigate = useNavigate();
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -60,7 +62,8 @@ function SignIn() {
 
   function handleSubmit(e) {
     e.preventDefault();
-
+    
+    
     const eobj = validateAll(form);
     setErrors(eobj);
     setTouch(Object.keys(form).reduce((acc, k) => ({ ...acc, [k]: true }), {}));
@@ -99,7 +102,9 @@ function SignIn() {
           }));
         }
       } else {
+        
         alert("Saved successfully!");
+        Navigate('/Dashboard')
         setForm({ firstName: "", lastName: "", phoneNumber: "", email: "" ,password:""});
         setTouch({});
         setErrors({});

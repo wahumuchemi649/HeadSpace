@@ -1,0 +1,82 @@
+
+.container aside{
+    width: 250px;
+    background-color: #3d1d77;
+    color: white;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+/* Sidebar title */
+aside h2 {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  color: #00bcd4;
+  text-align: left;
+  width: 100%;
+}
+
+/* Sidebar list */
+aside ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+/* Sidebar items */
+aside ul li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover and active states */
+aside ul li:hover {
+  background: #2e3038;
+  transform: translateX(5px);
+}
+
+aside ul li a{
+  color: #fff;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+}
+.container main{
+    flex: 1;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    margin-left: 20px;
+}
+.cards {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 10px;
+    text-align: center;
+}   
+.cards h6 {
+    font-size: 16px;
+    color: #888888;
+    margin-bottom: 10px;
+}
+.cards p {
+    font-size: 14px;
+    color: #555555;
+    margin-top: 10px;
+}
+.updates {
+    margin-top: 30px;
+    display: flex;
+}   
+.mainCards{
+    display: flex;
+    justify-content: space-between;
+}

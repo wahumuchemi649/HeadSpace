@@ -18,15 +18,27 @@ header{
   display: flex;
 }
 .sidebar{
-  background-color:#61dafbaa ;
+  background-color:#3d1d77 ;
   width:25%;
 
 }
-.sidebar a{
+.sidebar Link{
   color: #000;
-  display: block;
   font-family: 'Times New Roman', Times, serif;
   font-size: larger;
+  padding: 10px;
+}
+.sidebar div{
+  padding: 15px;
+  display: flex;
+  align-items: center;
+}
+.links{
+  display: flex;
+  color: #646cffaa;
+
+}
+.Specifics{
   padding: 10px;
 }
 .container main{

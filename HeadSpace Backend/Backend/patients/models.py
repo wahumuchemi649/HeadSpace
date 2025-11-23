@@ -15,6 +15,6 @@ class patient(models.Model):
         return super().save(*args,**kwargs)
 
     def __str__(self):
-        return f"{self.email} {self.phoneNumber}"
+        return f"{self.email}    {self.phoneNumber}"
 
 # Create your models here.

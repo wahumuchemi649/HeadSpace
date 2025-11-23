@@ -143,7 +143,8 @@ function Booking(){
             const res= await fetch(`${Api_Base}session/`,{
                 method: 'POST',
                 headers:{'content-type':'application/json'},
-                body: JSON.stringify(booking_data)
+                body: JSON.stringify(booking_data),
+                credentials: 'include',
             })
             if(res.ok){
                 alert('Booking Confirmed')

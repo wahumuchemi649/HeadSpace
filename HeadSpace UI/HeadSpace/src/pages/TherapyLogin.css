@@ -1,0 +1,20 @@
+.therapy-login-container{
+    background-color: #fff;
+    display: block;
+    align-items: center;
+    justify-content: center;
+}
+.form-group{
+    display: block;
+    padding: 10px;
+    
+}
+.form-group label{
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: blueviolet;
+}
+h5{
+    color: blueviolet;
+}

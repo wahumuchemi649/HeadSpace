@@ -2,8 +2,8 @@ import './SignIn.css'
 import { useState } from 'react'
 import Api_Base from './Api'
 import Dashboard from './Dashboard'
-import { useNavigate } from 'react-router'
-import { required } from 'joi'
+import { Link, useNavigate } from 'react-router'
+
 
 
 function Login(){
@@ -25,6 +25,7 @@ function Login(){
 
     async function handleSubmit(e){
         e.preventDefault()
+        console.log("Attempting to log in with form data:", form)
         setSubmitting(true)
         setErrors({})
 if(! form.password||!form.email){
@@ -33,15 +34,25 @@ if(! form.password||!form.email){
                 return (alert("all fiels required"))
             }
         try{
-            const res= await fetch(`${Api_Base}/api/login/`,{
+            const res= await fetch(`${Api_Base}api/login/`,{
                 method:'POST',
                 headers:{'Content-Type':"application/json"},
+                credentials:'include',
                 body:JSON.stringify(form)
             })
             const data = await res.json()
             
             if(res.ok){
+                localStorage.setItem("userEmail", form.email);  
+                
                 alert("Login Successfull")
+                console.log('📡 Response headers:');
+                for (let [key, value] of res.headers.entries()) {
+                 console.log(`${key}: ${value}`);
+               }
+                
+                 console.log('🍪 Cookies immediately after login:', document.cookie);
+                 console.log('📦 Login response data:', data);
                 navigate('/Dashboard')
             }
             else(
@@ -74,9 +85,16 @@ if(! form.password||!form.email){
                     </label>
                     <button type='submit' disabled={submitting}>{submitting ?"Login In ...":"Login"}</button>
                 </form>
+                <Link to="/SignIn" className='log'>Don't have an account? Sign Up</Link>
 
             </div>
         )
     }
 
 export default Login
+
+
+
+
+
+
