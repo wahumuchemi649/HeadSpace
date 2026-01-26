@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -26,7 +27,6 @@ def list_patients(request):
 def login(request):
     email = request.data.get('email')
     password = request.data.get('password')
-    
 
     print(f"Login attempt - Email: {email}")  # Debug
     print(f"Password received: {password}") # remove in production
@@ -93,9 +93,32 @@ def check_session(request):
                 "id": user_id,
                 "email": email
             }
-        }, status=status.HTTP_200_OK)
+        }, status=status.HTTP_200_OK) 
     else:
         return Response({
             "is_logged_in": False,
             "message": "No active session"
         }, status=status.HTTP_401_UNAUTHORIZED)
+    
+@api_view(['GET'])
+def patientDashboard(request):
+    print(f"📍Dashboard accessed")
+    print(f"Session key from request: {request.session.session_key}")
+    print(f"Session data: {dict(request.session)}")
+    print(f"Cookies received: {request.COOKIES}")
+    print(f"Has sessionid cookie: {'sessionid' in request.COOKIES}")
+    
+    email = request.session.get('patient_email')
+    if not email:
+        return JsonResponse({"message":" Not Loggedin"}, status=401)
+    try:
+        user=patient.objects.get(email=email)
+        return JsonResponse({
+            "firstName":user.firstName,
+            "lastName":user.lastName,
+            "email":user.email
+        })
+    except patient.DoesNotExist:
+        return JsonResponse({"Message": "User not found"})
+
+    

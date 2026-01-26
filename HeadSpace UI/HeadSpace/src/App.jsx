@@ -11,14 +11,14 @@ import TherapyLogin from './pages/TherapyLogin'
 import TherapyDashboard from './pages/Therapydashboard'
 import { AuthProvider } from './contexts/AuthContext';
 import SessionsList from './components/SessionsList';
+import Crisis from './pages/Crisis'
+import MySessions from './pages/Mysessions'
+import Messages from './pages/chatRoom'
+import ThSessions from './pages/Thsessions'
 
 
 function App() {
 
-  function ChatWrapper() {
-    const { sessionId } = useParams();
-    return <Chat sessionId={parseInt(sessionId)} />;
-  }
 
   return (
     <>
@@ -35,16 +35,14 @@ function App() {
       <Route path='/TherapyLogin' element={<TherapyLogin />} />
       <Route path="/sessions" element={<SessionsList />} />
       <Route path="chatRoom" element={<Chat />} />
-
-      {/* Dashboard */}
-      <Route path="/Dashboard" element={<Dashboard />}>
-        <Route path="chat/:sessionId" element={<ChatWrapper />} />
-      </Route>
-
-      {/* Therapist Dashboard */}
-      <Route path="/Therapydashboard" element={<TherapyDashboard />}>
-        <Route path="chat/:sessionId" element={<ChatWrapper />} />
-      </Route>
+      <Route path='/Crisis' element={<Crisis/>} />
+      <Route path="/Dashboard" element={<Dashboard />} />        
+      <Route path="/Therapydashboard" element={<TherapyDashboard />} />
+      <Route path="/ThSessions" element={< ThSessions/>}/>
+      <Route path="/MySessions" element={< MySessions/>}/>
+      <Route path="/chatRoom/:sessionId" element={<Messages />} />
+        
+      
 
     </Routes>
   </AuthProvider>

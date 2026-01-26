@@ -1,0 +1,264 @@
+/* Root container */
+.sessions-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background-color: #f1f4fe;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(61, 29, 119, 0.15);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Heading */
+.sessions-container h2 {
+  margin-bottom: 1.5rem;
+  color: #3d1d77;
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Loading / empty states */
+.sessions-container p {
+  text-align: center;
+  color: #3d1d77;
+  opacity: 0.85;
+  font-size: 1rem;
+}
+
+/* Sessions list */
+.sessions-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Individual session item */
+.session-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  background-color: #ffffff;
+  border-left: 5px solid #3d1d77;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+/* Hover / focus interaction */
+.session-item:hover {
+  transform: translateY(-2px);
+  background-color: #eef9ff;
+  border-left-color: #61dafb;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+
+/* Name / other party */
+.session-item strong {
+  color: #3d1d77;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+/* Last message preview */
+.session-item span,
+.session-item {
+  color: #444;
+  font-size: 0.95rem;
+}
+h4{
+  color: #555;
+  margin-top: -10px;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+.availability-container {
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.availability-header {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.availability-header h2 {
+  margin: 0 0 15px 0;
+  color: #333;
+}
+
+.legend {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #3d1d77;
+  font-weight: 500px;
+}
+
+.dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+.dot.available {
+  background: #28a745;
+  
+}
+
+.dot.booked {
+  background: #dc3545;
+}
+
+.dot.unavailable {
+  background: #6c757d;
+}
+
+.availability-grid {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: #4a90e2;
+  color: white;
+}
+
+th {
+  padding: 15px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.time-column {
+  background: #f8f9fa;
+  color: #3d1d77;
+  text-align: left !important;
+  padding-left: 20px !important;
+}
+
+td {
+  padding: 0;
+  text-align: center;
+  border: 1px solid #e9ecef;
+}
+
+.slot {
+  padding: 20px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 500;
+  user-select: none;
+}
+
+.slot.available {
+  background: #d4edda;
+  color: #155724;
+}
+
+.slot.available:hover {
+  background: #c3e6cb;
+  transform: scale(1.05);
+}
+
+.slot.unavailable {
+  background: #e2e3e5;
+  color: #6c757d;
+}
+
+.slot.unavailable:hover {
+  background: #d6d8db;
+  transform: scale(1.05);
+}
+
+.slot.booked {
+  background: #f8d7da;
+  color: #721c24;
+  cursor: not-allowed; /* Shows "not allowed" cursor */
+  font-weight: 600;
+  opacity: 0.7; /* ← Slightly faded to show it's locked */
+  pointer-events: none; /* ← Completely disable clicking */
+}
+
+.slot.booked:hover {
+  background: #f5c6cb;
+   transform: none;
+}
+.slot.booked::after {
+  content: " 🔒";
+  font-size: 12px;
+  margin-left: 5px;
+}
+.availability-footer {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.availability-footer p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 18px;
+  color: #666;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .availability-container {
+    padding: 15px;
+  }
+
+  .availability-grid {
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 800px;
+  }
+
+  th,
+  .slot {
+    font-size: 12px;
+    padding: 12px 5px;
+  }
+
+  .time-column {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+  }
+}
+
+/* Subtle di*

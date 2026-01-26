@@ -1,82 +1,271 @@
-
-.container aside{
-    width: 250px;
-    background-color: #3d1d77;
-    color: white;
-    padding: 20px;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-}
-/* Sidebar title */
-aside h2 {
-  font-size: 1.5rem;
-  margin-bottom: 2rem;
-  color: #00bcd4;
-  text-align: left;
-  width: 100%;
+/* ===== General Layout ===== */
+.container {
+    display: flex;
+    min-height: 100vh;
+    background: #eee;
+    font-family: Arial, sans-serif;
+    color: #333;
 }
 
-/* Sidebar list */
-aside ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  width: 100%;
+/* ===== Sidebar ===== */
+.therapyaside {
+    width: 260px;
+    background: #3d1d77;
+    color: #fff;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Sidebar items */
-aside ul li {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
+.therapyaside h2 {
+    margin-bottom: 30px;
+    font-size: 22px;
+    font-weight: bold;
 }
 
-/* Hover and active states */
-aside ul li:hover {
-  background: #2e3038;
-  transform: translateX(5px);
+.therapyaside ul {
+    list-style: none;
+    padding: 0;
 }
 
-aside ul li a{
-  color: #fff;
-  text-decoration: none;
-  font-size: 1rem;
-  font-weight: 500;
-}
-.container main{
-    flex: 1;
-    padding: 20px;
-    background-color: white;
-    box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    margin-left: 20px;
-}
-.cards {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin: 10px;
-    text-align: center;
-}   
-.cards h6 {
+.therapyaside ul li {
+    display: flex;
+    align-items: center;
+    margin: 15px 0;
     font-size: 16px;
-    color: #888888;
+}
+
+.therapyaside ul li a {
+    color: #eee;
+    margin-left: 10px;
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+
+.therapyaside ul li a:hover {
+    color: #61dafb;
+}
+
+/* ===== Main Content ===== */
+main {
+    flex: 1;
+    padding: 40px;
+}
+
+main h1 {
+    font-size: 28px;
+    color: #3d1d77;
     margin-bottom: 10px;
 }
+
+main p {
+    color: #555;
+    margin-bottom: 25px;
+    font-size: 15px;
+}
+
+/* ===== Cards Section ===== */
+.updates {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.cards {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    width: 260px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-left: 6px solid #3d1d77;
+}
+
+.cards h6 {
+    color: #555;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.cards h1 {
+    font-size: 32px;
+    color: #3d1d77;
+    margin-bottom: 10px;
+}
+
 .cards p {
     font-size: 14px;
-    color: #555555;
-    margin-top: 10px;
+    color: #555;
 }
-.updates {
-    margin-top: 30px;
+
+/* ===== Session List & Cards ===== */
+.mainCards {
     display: flex;
-}   
-.mainCards{
-    display: flex;
-    justify-content: space-between;
+    gap: 40px;
+}
+
+.mainCards h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #3d1d77;
+}
+
+.therapist-sessions-list {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 380px;
+    max-height: 400px;
+    overflow-y: auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.07);
+}
+
+.session-card {
+    background: #eee;
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 4px solid #61dafb;
+}
+
+.session-card p {
+    margin: 5px 0;
+    color: #555;
+}
+
+.session-card a {
+    display: inline-block;
+    margin-top: 8px;
+    color: #3d1d77;
+    font-weight: bold;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.session-card a:hover {
+    color: #61dafb;
+}
+
+/* ===== Scrollbar Styling (optional) ===== */
+.therapist-sessions-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.therapist-sessions-list::-webkit-scrollbar-thumb {
+    background: #3d1d77;
+    border-radius: 10px;
+}
+/* ============================
+   Mobile Responsive Design
+   ============================ */
+
+/* Tablets & Small Screens (≤ 768px) */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .therapyaside {
+        width: 100%;
+        height: auto;
+        padding: 15px;
+        text-align: center;
+        background: #3d1d77;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Sidebar title appears smaller */
+    .therapyaside h2 {
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+
+    /* Turn menu items into a horizontal scrollable bar */
+    .therapyaside ul {
+        display: flex;
+        overflow-x: auto;
+        white-space: nowrap;
+        gap: 20px;
+        padding: 10px 0;
+        width: 100%;
+        justify-content: flex-start;
+        scrollbar-width: none; /* hide scrollbar for Firefox */
+    }
+
+    .therapyaside ul::-webkit-scrollbar {
+        display: none; /* hide scrollbar for Chrome/Safari */
+    }
+
+    .therapyaside ul li {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        font-size: 14px;
+    }
+
+
+    .therapyaside ul Link a {
+        font-size: 14px;
+        text-decoration: none;
+        color: #eee;
+    }
+
+
+
+    main {
+        padding: 20px;
+    }
+
+    .updates {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .mainCards {
+        flex-direction: column;
+        gap: 25px;
+    }
+
+    .therapist-sessions-list {
+        width: 100%;
+        max-height: none;
+    }
+}
+
+/* Mobile Phones (≤ 480px) */
+@media (max-width: 480px) {
+    main h1 {
+        font-size: 22px;
+    }
+
+    .cards {
+        width: 100%;
+        padding: 20px;
+    }
+
+    .therapyaside h2 {
+        font-size: 20px;
+    }
+
+    .therapyaside ul li {
+        font-size: 14px;
+    }
+
+    .session-card {
+        padding: 12px;
+    }
+
+    .session-card p {
+        font-size: 14px;
+    }
+
+    .session-card a {
+        font-size: 14px;
+    }
+
+    .updates {
+        gap: 15px;
+    }
 }

@@ -2,6 +2,7 @@ import { useState, useEffect} from "react";
 import { useNavigate } from "react-router-dom"; // Fixed import
 import {format} from 'date-fns';
 import { MdPeople,MdDashboard,MdCalendarToday, MdMessage, MdNote, MdLogout } from "react-icons/md";
+import { FiCalendar } from "react-icons/fi";
 import './TherapyDashboard.css';
 import { Link } from "react-router-dom";
 
@@ -97,14 +98,23 @@ function Cards({ title, numbers, description}) {
     return(
         <>
         <div className="container">
-            <aside>
+            <aside className='therapyaside'>
                 <h2>Therapy Dashboard</h2>
                 <ul>
-                   <li><MdDashboard size={20} /><Link to="/Dashboard">Dashboard</Link></li>
-                   <li><MdPeople size={20}/><Link to="/patients">Patient</Link></li>
-                   <li><MdCalendarToday size={20}/><Link to="/sessions">Sessions</Link></li>
-                   {/*<li><MdMessage size={20} /><Link to='{`/chat/${session.id}`}'>Messages</Link></li>*/}
-                  <li> <Link to='/chatRoom'> Chat with Patients</Link></li>
+                   
+                   <li><Link to="/therapysessions" className="aside-link">
+                       <p><MdDashboard size={20} />Dashboard</p>
+                     </Link> </li>                 
+                   <li><Link to="/therapymessages" className="aside-link">
+                       <p><MdPeople size={20} />Patients</p>
+                     </Link></li>
+                   
+                   <li>
+                    <Link to="/ThSessions" className="aside-link">
+                       <p><FiCalendar size={20} />My Sessions</p>
+                     </Link>
+                   </li>
+                  
                    <li><MdNote size={20}/><Link to="/notes">Notes</Link></li>
                     <br/>
                     <br/>

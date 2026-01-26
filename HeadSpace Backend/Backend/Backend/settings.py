@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'therapy',
     'patients',
     'consultation',
-    'chatRoom',
+    'chat',
     'rest_framework',
     'corsheaders',
     'channels',
@@ -72,7 +72,27 @@ SESSION_COOKIE_AGE = 1209600
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # or whatever port React runs on
 ]
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
 
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'cookie',  # ← ADD THIS
+]
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
