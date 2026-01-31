@@ -1,10 +1,10 @@
 import json
-from django.shortcuts import render
-from django.http import HttpResponse
+
 from django.http import JsonResponse
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view
 
 from patients.models import patient
+from chat.models import Messages
 from consultation.models import Sessions
 from .models import therapists
 from django.contrib.auth.decorators import login_required
@@ -74,7 +74,7 @@ def dashboard(request):
         from datetime import date
         todays_sessions=Sessions.objects.filter(therapist=user, day=date.today()).count()
         total_clients=patient.objects.filter(sessions__therapist=user).distinct().count()
-        #unread_messages=Message.objects.filter(sender_therapist=user, is_read=False).count()
+        unread_messages=Messages.objects.filter(session__therapist=user, is_read=False, sender_type='patient').count()
         return JsonResponse({
         
         "FirstName": user.firstName,
@@ -85,7 +85,7 @@ def dashboard(request):
         "stat":{
             "todaysSessions": todays_sessions,
             "totalClients": total_clients,
-            #"unreadMessages": unread_messages   
+            "unreadMessages": unread_messages   
         }
         })
     except therapists.DoesNotExist:

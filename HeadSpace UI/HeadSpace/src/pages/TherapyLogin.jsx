@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import './TherapyLogin.css';
 import Api_Base from "./Api";
+import { MdRadioButtonChecked } from "react-icons/md";
+
 
 function TherapyLogin() {
   const [form, setForm] = useState({
@@ -69,9 +71,9 @@ console.log("Login response:", data);
   return(
     <>
       <div className="therapy-login-container">
-        {/*<h2>Therapist Login</h2>*/}
-        
-        {/* Show error message if exists */}
+        <MdRadioButtonChecked className='logo' size={80} color='#3d1d77'/>
+        <h1>HeadSpace</h1>
+        <h5>Your trusted therapy partner</h5>
         {errors.global && (
           <div style={{color: 'red', marginBottom: '10px'}}>
             {errors.global}

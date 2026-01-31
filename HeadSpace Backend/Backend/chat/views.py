@@ -56,6 +56,8 @@ def send_message(request, session_id):
     )
 
     return JsonResponse({'message': 'Message sent', 'id': msg.id})
+
+
 @csrf_exempt
 def get_messages(request, session_id):
     print("\n" + "="*60)
@@ -142,6 +144,9 @@ def my_sessions(request):
 
     data = []
     for s in sessions:
+        is_expired = s.is_expired()
+        can_access = s.can_access_chat()
+
         last_msg = (
             s.messages
             .only('message_text', 'created_at')
@@ -153,15 +158,162 @@ def my_sessions(request):
             is_read=False
         ).exclude(sender_type=user_type).count()
 
+        if is_expired and s.status != 'completed':
+            # Auto-update status to expired
+            s.status = 'expired'
+            s.save()
+            display_message = "⚠️ Subscription expired - Please renew"
+        elif not can_access:
+            display_message = "Session not yet started"
+        else:
+            display_message = last_msg.message_text if last_msg else "No messages yet"
+
+
         data.append({
             "id": s.id,
             "other_party": (
                 s.therapist.firstName if user_type == 'patient'
                 else s.patient.firstName
             ),
-            "last_message": last_msg.message_text if last_msg else None,
+            "last_message": display_message,
             "last_message_time": last_msg.created_at if last_msg else None,
             "unread_count": unread_count,
+            "is_expired": is_expired,  
+            "can_access": can_access,  
+            "status": s.status,
         })
 
     return JsonResponse(data, safe=False)
+
+@csrf_exempt
+def check_session_access(request, session_id):
+    """Check if user can access this chat session"""
+    
+    user_type = request.session.get('user_type')
+    if not user_type:
+        return JsonResponse({'error': 'Not authenticated', 'can_access': False}, status=401)
+    
+    user_id = (
+        request.session.get('patient_id')
+        if user_type == 'patient'
+        else request.session.get('therapist_id')
+    )
+    
+    try:
+        session_obj = Sessions.objects.get(id=session_id)
+    except Sessions.DoesNotExist:
+        return JsonResponse({'error': 'Session not found', 'can_access': False}, status=404)
+    
+    # Security check - is this their session?
+    if user_type == 'patient' and session_obj.patient.id != user_id:
+        return JsonResponse({'error': 'Unauthorized', 'can_access': False}, status=403)
+    if user_type == 'therapist' and session_obj.therapist.id != user_id:
+        return JsonResponse({'error': 'Unauthorized', 'can_access': False}, status=403)
+    
+    # ✅ Check if session can be accessed
+    if session_obj.is_expired():
+        return JsonResponse({
+            'can_access': False,
+            'message': 'This session has expired. Please book a new session.',
+            'is_expired': True
+        })
+    
+    if not session_obj.can_access_chat():
+        return JsonResponse({
+            'can_access': False,
+            'message': 'This session has not started yet.',
+            'is_expired': False
+        })
+    
+    return JsonResponse({
+        'can_access': True,
+        'message': 'Session is active'
+    })
+
+# Add these to your views.py
+
+@csrf_exempt
+def get_notes(request, session_id):
+    """Get notes for a specific session"""
+    
+    if request.method != "GET":
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+    user_type = request.session.get('user_type')
+    if not user_type:
+        return JsonResponse({'error': 'Not authenticated'}, status=401)
+    
+    user_id = (
+        request.session.get('patient_id')
+        if user_type == 'patient'
+        else request.session.get('therapist_id')
+    )
+    
+    try:
+        session_obj = Sessions.objects.get(id=session_id)
+    except Sessions.DoesNotExist:
+        return JsonResponse({'error': 'Session not found'}, status=404)
+    
+    # Security check
+    if user_type == 'patient' and session_obj.patient.id != user_id:
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+    if user_type == 'therapist' and session_obj.therapist.id != user_id:
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+    
+    # Get or create notes
+    notes, created = SessionNotes.objects.get_or_create(
+        session=session_obj,
+        user_id=user_id,
+        user_type=user_type,
+        defaults={'content': ''}
+    )
+    
+    return JsonResponse({
+        'content': notes.content,
+        'updated_at': notes.updated_at.isoformat()
+    })
+
+
+@csrf_exempt
+def save_notes(request, session_id):
+    """Save notes for a specific session"""
+    
+    if request.method != "POST":
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+    user_type = request.session.get('user_type')
+    if not user_type:
+        return JsonResponse({'error': 'Not authenticated'}, status=401)
+    
+    user_id = (
+        request.session.get('patient_id')
+        if user_type == 'patient'
+        else request.session.get('therapist_id')
+    )
+    
+    try:
+        session_obj = Sessions.objects.get(id=session_id)
+    except Sessions.DoesNotExist:
+        return JsonResponse({'error': 'Session not found'}, status=404)
+    
+    # Security check
+    if user_type == 'patient' and session_obj.patient.id != user_id:
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+    if user_type == 'therapist' and session_obj.therapist.id != user_id:
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+    
+    data = json.loads(request.body)
+    content = data.get('content', '')
+    
+    # Update or create notes
+    notes, created = SessionNotes.objects.update_or_create(
+        session=session_obj,
+        user_id=user_id,
+        user_type=user_type,
+        defaults={'content': content}
+    )
+    
+    return JsonResponse({
+        'message': 'Notes saved successfully',
+        'updated_at': notes.updated_at.isoformat()
+    })

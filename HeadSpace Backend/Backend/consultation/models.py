@@ -27,6 +27,7 @@ class Sessions(models.Model):
             ('scheduled', 'Scheduled'),
             ('active', 'Active'),
             ('completed', 'Completed'),
+            ('expired', 'Expired'),
             ('cancelled', 'Cancelled')
         ],
         default='scheduled'
@@ -36,6 +37,33 @@ class Sessions(models.Model):
 
     def __str__(self):
         return f"{self.patient} with {self.therapist} on {self.day} at {self.time}"
+    
+    def is_expired(self):
+        """Check if session has passed its end time"""
+        from datetime import datetime, timedelta
+        
+        # Combine date and time
+        session_datetime = datetime.combine(self.day, self.time)
+        
+        # Add duration to get end time
+        session_end = session_datetime + timedelta(minutes=self.duration_minutes)
+        
+        # Check if current time is past session end
+        now = datetime.now()
+        return now > session_end
+    
+    def can_access_chat(self):
+        """Check if chat room can be accessed"""
+        from datetime import datetime, timedelta
+        
+        session_datetime = datetime.combine(self.day, self.time)
+        session_end = session_datetime + timedelta(minutes=self.duration_minutes)
+        
+        # Allow access 5 minutes before session starts, until session ends
+        access_start = session_datetime - timedelta(minutes=5)
+        now = datetime.now()
+        
+        return access_start <= now <= session_end
 
 
 @admin.register(Sessions)

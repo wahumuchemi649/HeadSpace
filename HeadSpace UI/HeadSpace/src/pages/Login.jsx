@@ -4,11 +4,14 @@ import Api_Base from './Api'
 import Dashboard from './Dashboard'
 import  HeadSpace from './assets/HeadSpace.png'
 import { Link, useNavigate } from 'react-router'
+import { MdRadioButtonChecked } from "react-icons/md";
+
 
 
 
 function Login(){
     const navigate = useNavigate()
+    
     const [form,setForm] =useState({
          email:"",
         password:""
@@ -46,7 +49,7 @@ if(! form.password||!form.email){
             if(res.ok){
                 localStorage.setItem("userEmail", form.email);  
                 
-                alert("Login Successfull")
+                
                 console.log('📡 Response headers:');
                 for (let [key, value] of res.headers.entries()) {
                  console.log(`${key}: ${value}`);
@@ -72,8 +75,11 @@ if(! form.password||!form.email){
             
         }
         return(
-            <div className='signin-container '
-            style={{ backgroundImage: `url(${HeadSpace})` }}>
+            
+            <div className='signin-container '>
+                <MdRadioButtonChecked className='logo' size={80} color='#3d1d77'/>
+                <h1>HeadSpace</h1>
+                <h5>Find your calm, improve your life</h5>
                 <form onSubmit={handleSubmit} noValidate>
                     {errors.global && <div role="alert">{errors.global}</div>}
 
@@ -83,8 +89,15 @@ if(! form.password||!form.email){
                     </label>
                     <label>
                         Password
-                        <input type='password'name="password" value={form.password} onChange={handleChange}></input>
+                        <input type='password' name="password" value={form.password} onChange={handleChange}></input>
                     </label>
+                    
+                    {submitting && (
+  <p style={{ textAlign: "center", color: "#3d1d77" }}>
+    Authenticating...
+  </p>
+)}
+
                     <button type='submit' disabled={submitting}>{submitting ?"Login In ...":"Login"}</button>
                 </form>
                 <Link to="/SignIn" className='log'>Don't have an account? Sign Up</Link>

@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from .models import Sessions
 from therapy.models import therapists
 from patients.models import patient
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta,date
 import json
 
 
@@ -43,6 +43,18 @@ def session(request):
             # Validation
             if not all([therapist_id, reason_category, date_str, time_str]):
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
+            
+            active_session = Sessions.objects.filter(
+                patient_id=patient_id,
+                therapist_id=therapist_id,
+                status__in=['scheduled', 'active']
+            ).first()
+            
+            if active_session and not active_session.is_expired():
+                return JsonResponse({
+                    'error': f'You already have an active session with this therapist on {active_session.day} at {active_session.time}. Please complete or cancel it before booking another.',
+                    'existing_session_id': active_session.id
+                }, status=400)
             
             # Convert date and time
             session_date = datetime.strptime(date_str, '%Y-%m-%d').date()
@@ -125,3 +137,155 @@ def session(request):
             return JsonResponse({'error': str(e)}, status=500)
     
     return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+
+
+def upcoming_sessions(request):    
+    user_type = request.session.get('user_type')
+    
+    if not user_type:
+        return JsonResponse({'error': 'Not authenticated'}, status=401)
+    
+    try:
+        today = date.today()
+        
+        if user_type == 'patient':
+            patient_id = request.session.get('patient_id')
+            if not patient_id:
+                return JsonResponse({'error': 'Patient not found'}, status=401)
+            
+            # Get patient's upcoming sessions
+            sessions = Sessions.objects.filter(
+                patient_id=patient_id,
+                day__gte=today,  # Today or future
+                status__in=['scheduled', 'active']
+            ).select_related('therapist').order_by('day', 'time')
+            
+            sessions_data = [
+                {
+                    'id': s.id,
+                    'date': s.day.isoformat(),
+                    'time': s.time.strftime('%H:%M'),
+                    'time_display': s.time.strftime('%I:%M %p'),
+                    'therapist_name': f"Dr. {s.therapist.firstName} {s.therapist.lastName}",
+                    'therapist_photo': s.therapist.profile_pic.url if s.therapist.profile_pic else None,
+                    'reason_category': s.reason_category,
+                    'reason': s.reason,
+                    'duration_minutes': s.duration_minutes,
+                    'status': s.status,
+                    'created_at': s.created_at.isoformat()
+                }
+                for s in sessions
+            ]
+            
+        elif user_type == 'therapist':
+            therapist_id = request.session.get('therapist_id')
+            if not therapist_id:
+                return JsonResponse({'error': 'Therapist not found'}, status=401)
+            
+            # Get therapist's upcoming sessions
+            sessions = Sessions.objects.filter(
+                therapist_id=therapist_id,
+                day__gte=today,
+                status__in=['scheduled', 'active']
+            ).select_related('patient').order_by('day', 'time')
+            
+            sessions_data = [
+                {
+                    'id': s.id,
+                    'date': s.day.isoformat(),
+                    'time': s.time.strftime('%H:%M'),
+                    'time_display': s.time.strftime('%I:%M %p'),
+                    'patient_name': f"{s.patient.firstName} {s.patient.lastName}",
+                    'patient_email': s.patient.email,
+                    'reason_category': s.reason_category,
+                    'reason': s.reason,
+                    'duration_minutes': s.duration_minutes,
+                    'status': s.status,
+                    'created_at': s.created_at.isoformat()
+                }
+                for s in sessions
+            ]
+        
+        else:
+            return JsonResponse({'error': 'Invalid user type'}, status=400)
+        
+        return JsonResponse({
+            'success': True,
+            'user_type': user_type,
+            'upcoming_sessions': sessions_data,
+            'total_count': len(sessions_data)
+        })
+        
+    except Exception as e:
+        print(f"Error fetching upcoming sessions: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+def todays_sessions(request):
+    """Get today's sessions only"""
+    
+    user_type = request.session.get('user_type')
+    
+    if not user_type:
+        return JsonResponse({'error': 'Not authenticated'}, status=401)
+    
+    try:
+        today = date.today()
+        
+        if user_type == 'patient':
+            patient_id = request.session.get('patient_id')
+            sessions = Sessions.objects.filter(
+                patient_id=patient_id,
+                day=today,
+                status__in=['scheduled', 'active']
+            ).select_related('therapist').order_by('time')
+            
+            sessions_data = [
+                {
+                    'id': s.id,
+                    'time': s.time.strftime('%H:%M'),
+                    'time_display': s.time.strftime('%I:%M %p'),
+                    'therapist_name': f"Dr. {s.therapist.firstName} {s.therapist.lastName}",
+                    'reason_category': s.reason_category,
+                    'duration_minutes': s.duration_minutes,
+                    'status': s.status
+                }
+                for s in sessions
+            ]
+            
+        elif user_type == 'therapist':
+            therapist_id = request.session.get('therapist_id')
+            sessions = Sessions.objects.filter(
+                therapist_id=therapist_id,
+                day=today,
+                status__in=['scheduled', 'active']
+            ).select_related('patient').order_by('time')
+            
+            sessions_data = [
+                {
+                    'id': s.id,
+                    'time': s.time.strftime('%H:%M'),
+                    'time_display': s.time.strftime('%I:%M %p'),
+                    'patient_name': f"{s.patient.firstName} {s.patient.lastName}",
+                    'reason_category': s.reason_category,
+                    'duration_minutes': s.duration_minutes,
+                    'status': s.status
+                }
+                for s in sessions
+            ]
+        else:
+            return JsonResponse({'error': 'Invalid user type'}, status=400)
+        
+        return JsonResponse({
+            'success': True,
+            'date': today.isoformat(),
+            'sessions': sessions_data,
+            'total_count': len(sessions_data)
+        })
+        
+    except Exception as e:
+        print(f"Error fetching today's sessions: {e}")
+        return JsonResponse({'error': str(e)}, status=500)

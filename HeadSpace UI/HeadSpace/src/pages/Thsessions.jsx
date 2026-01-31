@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {Link, useNavigate } from "react-router-dom";
 import './Mysessions.css'
+import { AiFillDashboard } from "react-icons/ai";
+import { FiCalendar } from "react-icons/fi";
+import { MdRadioButtonChecked } from "react-icons/md";
 
 function TherapistAvailability() {
   const [grid, setGrid] = useState([]);
@@ -67,6 +70,7 @@ function TherapistAvailability() {
   if (loading) {
     return <div className="loading">Loading your schedule...</div>;
   }
+  
 
   return (
     <div className="availability-container">
@@ -187,9 +191,47 @@ export default function ThSessions() {
 
   console.log("Right before return, sessions is:", sessions);
 
+  const handleSessionClick = (session) => {
+    // ✅ Check if session is expired
+    if (session.is_expired) {
+      alert("This session has expired. Please book a new session to continue.");
+      return;
+    }
+
+    // ✅ Check if session can be accessed yet
+    if (!session.can_access) {
+      alert("This session hasn't started yet. Please wait until the scheduled time.");
+      return;
+    }
+
+    // Navigate to chat room
+    navigate(`/chatRoom/${session.id}`);
+  };
+
+
   return (
     <div className="sessions-container">
-      <h2>My Sessions</h2>
+      <div className="ThHeader">
+      <MdRadioButtonChecked className='logo' size={80} color='#3d1d77'/>
+      <h1>HeadSpace</h1>
+      </div>
+      <MdRadioButtonChecked className='logo' size={80} color='#3d1d77'/>
+      <h1>HeadSpace</h1>
+      <aside className="aside">
+        <Link to="/Therapydashboard" className="aside-link">
+          <p>
+            <AiFillDashboard size={40} color="#555" />Dashboard
+          </p>
+        </Link>
+        <Link to="/ThSessions" className="aside-link">
+          <p>
+            <FiCalendar size={40} color="#555" /> My Sessions
+          </p>
+        </Link>
+
+      </aside>
+      <main>
+<h2>My Sessions</h2>
 
       {sessions === null && <p>Loading sessions...</p>}
 
@@ -199,14 +241,48 @@ export default function ThSessions() {
         <ul>
           {sessions.map((s) => {
             console.log("Rendering session:", s);
+            const isDisabled = s.is_expired || !s.can_access;
+            const cardClass = `session-item ${isDisabled ? 'disabled' : ''}`;
+
             return (
               <li
                 key={s.id}
-                className="session-item"
-                onClick={() => navigate(`/chatRoom/${s.id}`)}
+                className={cardClass}
+                onClick={() => !isDisabled && handleSessionClick(s)}
+                style={{
+                  cursor: isDisabled ? 'not-allowed' : 'pointer',
+                  opacity: isDisabled ? 0.6 : 1
+                }}
               >
-                <strong>{s.other_party}</strong> -{" "}
-                {s.last_message || "No messages yet"}
+                <div className="session-header">
+                  <strong>{s.other_party}</strong>
+                  {s.is_expired && (
+                    <span className="expired-badge">EXPIRED</span>
+                  )}
+                  {s.status === 'scheduled' && !s.is_expired && (
+                    <span className="upcoming-badge">UPCOMING</span>
+                  )}
+                </div>
+
+                <div className="session-message">
+                  {s.last_message}
+                </div>
+
+                {s.is_expired && (
+                  <button 
+                    className="renew-button"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent card click
+                      navigate('/booking');
+                    }}
+                  >
+                    Book New Session
+                  </button>
+                )}
+
+                {s.unread_count > 0 && !s.is_expired && (
+                  <span className="unread-badge">{s.unread_count} new</span>
+                )}
               </li>
             );
           })}
@@ -214,6 +290,8 @@ export default function ThSessions() {
       )}
       <hr />
       <TherapistAvailability />
+      </main>
+      
     </div>
     
   );

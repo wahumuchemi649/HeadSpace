@@ -1,8 +1,8 @@
 import { useState } from "react";
 import Api_Base from "./Api";
 import  './SignIn.css'
-import { useNavigate } from "react-router-dom";
-import HeadSpace from './assets/HeadSpace.png'
+import { Link, useNavigate } from "react-router-dom";
+import { MdRadioButtonChecked } from "react-icons/md";
 
 function SignIn() {
   const Navigate = useNavigate();
@@ -122,8 +122,11 @@ function SignIn() {
   }
 
   return (
-    <div className="signin-container"
-      style={{ backgroundImage: `url(${HeadSpace})` }}>
+    <div className="signin-container">
+      <MdRadioButtonChecked className='logo' size={80} color='#3d1d77'/>
+      <h1>HeadSpace</h1>
+      <h5>Find your calm, improve your life</h5>
+
     <form onSubmit={handleSubmit} noValidate>
       {errors._global && <div role="alert">{errors._global}</div>}
 
@@ -195,6 +198,7 @@ function SignIn() {
         {submitting ? "saving..." : "submit"}
       </button>
     </form>
+     <Link to="/Login" className='log'>Already have an account? Log in</Link>
     </div>
   );
 }

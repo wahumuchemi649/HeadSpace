@@ -1,20 +1,147 @@
-.therapy-login-container{
-    background-color: #fff;
-    display: block;
-    align-items: center;
-    justify-content: center;
+/* Container */
+.therapy-login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #eee 0%, white 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #555;
+  box-sizing: border-box;
 }
-.form-group{
-    display: block;
-    padding: 10px;
-    
+
+/* Logo */
+.therapy-login-container .logo {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 2px 4px rgba(61, 29, 119, 0.3));
 }
-.form-group label{
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: blueviolet;
+
+/* Headings */
+.therapy-login-container h1 {
+  color: #3d1d77;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
 }
-h5{
-    color: blueviolet;
+
+.therapy-login-container h5 {
+  color: #555;
+  font-size: 1rem;
+  font-weight: 400;
+  margin-top: 0.2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* Global error */
+.therapy-login-container > div[style] {
+  background: #ffe5e5;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  color: red;
+  font-weight: 500;
+  text-align: center;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Form */
+.formName {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 400px;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(61, 29, 119, 0.1);
+  gap: 1rem;
+}
+
+/* Form group */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #3d1d77;
+  font-size: 0.95rem;
+}
+
+.form-group input {
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  border: 1.5px solid #eee;
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+  border-color: #61dafb;
+  box-shadow: 0 0 8px rgba(97, 218, 251, 0.3);
+}
+
+/* Submit button */
+button[type="submit"] {
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background: #3d1d77;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button[type="submit"]:hover:not(:disabled) {
+  background: #61dafb;
+  color: #3d1d77;
+}
+
+button[type="submit"]:disabled {
+  background: #bbb;
+  cursor: not-allowed;
+}
+
+/* Footer text */
+.formName h5 {
+  font-weight: 400;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: 1rem;
+  color: #555;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .therapy-login-container {
+    padding: 1rem;
+  }
+
+  .formName {
+    padding: 1.5rem;
+  }
+
+  .therapy-login-container h1 {
+    font-size: 1.6rem;
+  }
+
+  .therapy-login-container h5 {
+    font-size: 0.85rem;
+  }
+
+  button[type="submit"] {
+    font-size: 0.95rem;
+    padding: 0.8rem 1rem;
+  }
 }

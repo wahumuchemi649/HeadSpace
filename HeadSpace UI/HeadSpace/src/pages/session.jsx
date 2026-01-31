@@ -244,17 +244,24 @@ function Booking() {
             alert('Please select a reason for booking')
             return
         }
-        // TODO: Get selected slot from TherapistAvailabilityGrid
-        // For now, you'll need to pass this up from the grid component
-
+        if (!selectedSlot) {  // ✅ ADD THIS CHECK
+        alert('Please select a time slot')
+        return
+    }
+    console.log('🔍 selectedSlot.time:', selectedSlot.time) // ✅ ADD THIS
+    console.log('🔍 selectedSlot.date:', selectedSlot.date) // ✅ ADD THIS
+        
         const booking_data = {
             therapist_id: selectedTherapist.id,
             reason_category: reasonCategory,
             reason_details: reasonDetails, // Optional
             duration_minutes: parseInt(duration),
             frequency: frequency,
-            // day and time will come from selected slot
+            date: selectedSlot.date, 
+            time: selectedSlot.time,
         }
+        console.log('📤 Sending booking data:', booking_data)
+        
 
         try {
             const res = await fetch(`${Api_Base}session/`, {
@@ -269,6 +276,7 @@ function Booking() {
                 setSelectedTherapist(null)
                 setReasonCategory('')
                 setReasonDetails('')
+                 setSelectedSlot(null)  
             } else {
                 const error = await res.json()
                 alert(`Booking failed: ${error.message || 'Unknown error'}`)

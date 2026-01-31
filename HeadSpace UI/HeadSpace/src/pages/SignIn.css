@@ -1,64 +1,132 @@
+/* =========================
+   PAGE WRAPPER
+========================= */
 .signin-container {
-  display: flex;
-  flex-direction: column;          /* ensure link stays below form */
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
-
-  /* BACKGROUND IMAGE */
-  background-size: cover;          /* fits screen */
-  background-position: center;     /* centered */
-  background-repeat: no-repeat;    /* avoid tiling */
-  background-attachment: fixed;    /* parallax effect */
-  padding: 2rem;
+  background: #eee;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 30px 15px;
 }
 
+/* =========================
+   LOGO & BRANDING
+========================= */
+.logo {
+  margin-bottom: 5px;
+}
+
+.signin-container h1 {
+  color: #3d1d77;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.signin-container h5 {
+  color: #555;
+  font-weight: 400;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+/* =========================
+   FORM CARD
+========================= */
 .signin-container form {
-  background: rgba(255, 255, 255, 0.9); /* slight transparency */
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  background: white;
   width: 100%;
-  max-width: 400px;                /* stops stretching */
+  max-width: 380px;
+  padding: 35px 30px;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
 }
 
-.signin-container label {
-  display: block;
-  margin-bottom: 1.2rem;
-  color: #111;
-  font-weight: 600;
-}
-
-.signin-container input {
-  width: 100%;
-  padding: 0.6rem;
-  margin-top: 0.3rem;
-  border: 1px solid #bbb;
-  border-radius: 6px;
-  font-size: 1rem;
-}
-
-.signin-container button {
-  width: 100%;
-  padding: 0.7rem;
-  margin-top: 1rem;
-  background: #1a73e8;
-  color: white;
-  font-size: 1rem;
-  font-weight: 600;
+/* =========================
+   ERROR MESSAGE
+========================= */
+[role="alert"] {
+  background: #eee;
+  color: #3d1d77;
+  padding: 10px;
   border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: 0.2s ease;
+  font-size: 14px;
+  margin-bottom: 15px;
+  text-align: center;
 }
 
-.signin-container button:hover {
-  background: #155dc2;
+/* =========================
+   LABELS & INPUTS
+========================= */
+form label {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 20px;
 }
 
-.log {
-  margin-top: 1rem;
+form input {
+  margin-top: 6px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  font-size: 15px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+form input:focus {
+  outline: none;
+  border-color: #61dafb;
+  box-shadow: 0 0 0 3px rgba(97, 218, 251, 0.25);
+}
+
+/* =========================
+   AUTH STATUS TEXT
+========================= */
+form p {
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+/* =========================
+   BUTTON
+========================= */
+form button {
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: 30px;
+  background: #3d1d77;
   color: white;
-  font-size: 0.95rem;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+form button:hover {
+  background: #2f155c;
+}
+
+form button:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+/* =========================
+   SIGN-UP LINK
+========================= */
+.log {
+  margin-top: 18px;
+  font-size: 14px;
+  color: #61dafb;
+  text-decoration: none;
+}
+
+.log:hover {
   text-decoration: underline;
 }
