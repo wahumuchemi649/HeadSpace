@@ -72,6 +72,7 @@ SESSION_COOKIE_NAME = 'sessionid'
 SESSION_COOKIE_AGE = 1209600
 
 CORS_ALLOWED_ORIGINS = [
+    "https://headspace.onrender.com",
     "http://localhost:5173",  # or whatever port React runs on
 ]
 CORS_ALLOW_METHODS = [
