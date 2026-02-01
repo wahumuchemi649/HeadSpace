@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {Link, useNavigate } from "react-router-dom";
 import './Mysessions.css'
+import Api_Base from './Api'
 import { AiFillDashboard } from "react-icons/ai";
 import { FiCalendar } from "react-icons/fi";
 import { MdRadioButtonChecked } from "react-icons/md";
@@ -16,7 +17,7 @@ function TherapistAvailability() {
   }, []);
 
   const fetchGrid = () => {
-    fetch("http://localhost:8000/therapist/availability/", {
+    fetch(`${Api_Base}therapist/availability/`, {
       credentials: "include",
     })
       .then((res) => {
@@ -41,7 +42,7 @@ function TherapistAvailability() {
       return; // ← Just return, no alert, no action
     }
 
-    fetch("http://localhost:8000/therapist/availability/toggle/", {
+    fetch(`${Api_Base}therapist/availability/toggle/`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -171,7 +172,7 @@ export default function ThSessions() {
 
   useEffect(() => {
     console.log("useEffect running - about to fetch");
-    fetch(`http://localhost:8000/chat/my_sessions/`, {
+    fetch(`${Api_Base}chat/my_sessions/`, {
       credentials: "include",
     })
       .then(res => {
@@ -211,12 +212,11 @@ export default function ThSessions() {
 
   return (
     <div className="sessions-container">
-      <div className="ThHeader">
+      <header className="header">
       <MdRadioButtonChecked className='logo' size={80} color='#3d1d77'/>
       <h1>HeadSpace</h1>
-      </div>
-      <MdRadioButtonChecked className='logo' size={80} color='#3d1d77'/>
-      <h1>HeadSpace</h1>
+      </header>
+      
       <aside className="aside">
         <Link to="/Therapydashboard" className="aside-link">
           <p>

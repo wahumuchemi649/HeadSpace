@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/axios';
+import Api_Base from './Api'  
 import { useAuth } from '../contexts/AuthContext';
 
 function SessionsList() {

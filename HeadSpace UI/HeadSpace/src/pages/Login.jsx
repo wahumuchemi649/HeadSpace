@@ -1,13 +1,8 @@
 import './SignIn.css'
 import { useState } from 'react'
 import Api_Base from './Api'
-import Dashboard from './Dashboard'
-import  HeadSpace from './assets/HeadSpace.png'
 import { Link, useNavigate } from 'react-router'
 import { MdRadioButtonChecked } from "react-icons/md";
-
-
-
 
 function Login(){
     const navigate = useNavigate()

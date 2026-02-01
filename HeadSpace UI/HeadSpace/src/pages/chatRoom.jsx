@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./Chat.css";
+import Api_Base from './Api'
+import { WS_BASE } from './Api';
 
 export default function Messages() {
   const { sessionId } = useParams();
@@ -21,7 +23,7 @@ useEffect(() => {
   if (!sessionId) return;
 
   // Check if session is accessible
-  fetch(`http://localhost:8000/chat/${sessionId}/check-access/`, {
+  fetch(` ${Api_Base}chat/${sessionId}/check-access/`, {
     credentials: "include",
   })
     .then((res) => res.json())
@@ -37,7 +39,7 @@ useEffect(() => {
   useEffect(() => {
     if (!sessionId) return;
 
-    fetch(`http://localhost:8000/chat/${sessionId}/messages/`, {
+    fetch(`${Api_Base}chat/${sessionId}/messages/`, {
       credentials: "include",
     })
       .then((res) => {
@@ -54,7 +56,7 @@ useEffect(() => {
   useEffect(() => {
     if (!sessionId) return;
 
-    fetch(`http://localhost:8000/chat/${sessionId}/notes/`, {
+    fetch(`${Api_Base}chat/${sessionId}/notes/`, {
       credentials: "include",
     })
       .then((res) => {
@@ -74,7 +76,7 @@ useEffect(() => {
   const saveNotes = (content) => {
     setIsSaving(true);
 
-    fetch(`http://localhost:8000/chat/${sessionId}/notes/save/`, {
+    fetch(`${Api_Base}chat/${sessionId}/notes/save/`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -116,7 +118,7 @@ useEffect(() => {
     if (!sessionId) return;
 
     console.log("Connecting to WebSocket...");
-    ws.current = new WebSocket(`ws://localhost:8000/ws/chat/${sessionId}/`);
+    ws.current = new WebSocket(`${WS_BASE}ws/chat/${sessionId}/`);
 
     ws.current.onopen = () => {
       console.log("✅ WebSocket connected");
@@ -155,7 +157,7 @@ useEffect(() => {
 
     console.log("Sending message:", newMessage);
 
-    fetch(`http://localhost:8000/chat/${sessionId}/send/`, {
+    fetch(`${Api_Base}chat/${sessionId}/send/`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },

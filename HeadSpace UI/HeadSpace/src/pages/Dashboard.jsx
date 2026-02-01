@@ -9,6 +9,8 @@ import {FiTrendingUp,FiCalendar} from "react-icons/fi";
 import { FiHome,FiPhone } from 'react-icons/fi';
 import { Ban } from "lucide-react";
 import MoodChart from './Mood.jsx';
+import Api_Base from '.Api'
+
 function UpcomingSessions() {
     const [sessions, setSessions] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -21,7 +23,7 @@ function UpcomingSessions() {
 
     const fetchUpcomingSessions = async () => {
         try {
-            const res = await fetch(`http://localhost:8000/upcoming-sessions/`, {
+            const res = await fetch(`${Api_Base}upcoming-sessions/`, {
                 credentials: 'include'
             });
 
@@ -165,7 +167,7 @@ function Dashboard(){
 
   const [user,setUser] =useState(null);
   useEffect(()=>{
-    fetch('http://localhost:8000/api/patientDashboard/',{
+    fetch(`${Api_Base}api/patientDashboard/`,{
       method:"GET",
       credentials:"include"
     })

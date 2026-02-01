@@ -1,4 +1,35 @@
-/* Mysessions.css */
+/* ============================================
+   HEADSPACE SESSIONS - COMPLETE STYLING
+   ============================================ */
+
+:root {
+  --primary: #3d1d77;
+  --primary-light: #5a2d99;
+  --primary-dark: #2a1450;
+  --accent: #9f7aea;
+  --accent-light: #b794f6;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --bg-main: #fafafa;
+  --bg-card: #ffffff;
+  --bg-sidebar: #f8f7fc;
+  --text-primary: #1a202c;
+  --text-secondary: #4a5568;
+  --text-muted: #718096;
+  --border: #e2e8f0;
+  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-2: 0 4px 12px rgba(61, 29, 119, 0.08);
+  --shadow-3: 0 8px 24px rgba(61, 29, 119, 0.12);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   RESET & BASE
+   ============================================ */
 
 * {
   margin: 0;
@@ -8,624 +39,687 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background: linear-gradient(135deg, #eee 0%, white 100%);
+  background: var(--bg-main);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Sessions Container - using same layout as clientcontainer */
+/* ============================================
+   LAYOUT CONTAINER
+   ============================================ */
+
 .sessions-container {
-  display: flex;
   min-height: 100vh;
-  padding-top: 80px;
+  display: flex;
+  background: var(--bg-main);
 }
 
-/* Header styling for ThSessions */
-.ThHeader {
+/* Hide duplicate logo/heading elements */
+.sessions-container > .logo,
+.sessions-container > h1,
+.sessions-container > h5 {
+  display: none;
+}
+
+/* ============================================
+   HEADER (Patient View)
+   ============================================ */
+
+.header {
   position: fixed;
   top: 0;
+  /*left: 0;*/
+  width: 100%;
+  height: 180px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  padding: 2rem 1.5rem;
+  text-align: center;
+ /* z-index: 101;*/
+  box-shadow: var(--shadow-2);
+}
+
+.header .logo {
+  filter: brightness(0) invert(1);
+ 
+}
+
+.header h1 {
+  color: #ffffff;
+  text-align: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+
+  /*margin-bottom: 0.25rem;*/
+}
+
+
+
+/* ============================================
+   SIDEBAR
+   ============================================ */
+
+.aside {
+  width: 280px;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
   left: 0;
-  right: 0;
-  height: 80px;
-  background: white;
-  border-bottom: 2px solid #eee;
+  top: 0;
+  z-index: 100;
+  overflow-y: auto;
+  box-shadow: var(--shadow-1);
+  padding-top: 180px; /* Space for header */
+}
+
+/* Sidebar without header (for pages without .header) */
+.sessions-container:not(:has(.header)) .aside {
+  padding-top: 1rem;
+}
+
+/* Sidebar Navigation */
+.aside-link {
+  display: block;
+  text-decoration: none;
+  color: var(--text-secondary);
+  padding: 0.75rem 1.5rem;
+  margin: 0.25rem 1rem;
+  border-radius: var(--radius-md);
+  transition: var(--transition);
+  position: relative;
+}
+
+.aside-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 0;
+  background: var(--primary);
+  border-radius: 0 4px 4px 0;
+  transition: height 0.3s ease;
+}
+
+.aside-link:hover {
+  background: var(--bg-sidebar);
+  color: var(--primary);
+  transform: translateX(4px);
+}
+
+.aside-link:hover::before {
+  height: 60%;
+}
+
+.aside-link p {
   display: flex;
   align-items: center;
-  padding: 0 2rem;
   gap: 1rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  z-index: 1000;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0;
+  padding: 0;
 }
 
-.ThHeader .logo {
-  filter: drop-shadow(0 2px 4px rgba(61, 29, 119, 0.2));
+.aside-link:hover svg {
+  color: var(--primary) !important;
+  transform: scale(1.1);
+  transition: var(--transition);
 }
 
-.ThHeader h1 {
-  color: #3d1d77;
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-/* Logo and Header for MySessions (no fixed header) */
-.sessions-container > .logo {
-  position: fixed;
-  top: 1rem;
-  left: 2rem;
-  filter: drop-shadow(0 2px 4px rgba(61, 29, 119, 0.2));
-  z-index: 1001;
-}
-
-.sessions-container > h1 {
-  position: fixed;
-  top: 1.5rem;
-  left: 6.5rem;
-  color: #3d1d77;
-  font-size: 1.5rem;
-  font-weight: 700;
-  z-index: 1001;
-}
-
-.sessions-container > h5 {
-  position: fixed;
-  top: 3.2rem;
-  left: 6.5rem;
-  color: #555;
-  font-size: 0.85rem;
-  font-weight: 400;
-  z-index: 1001;
-}
-
-/* Sidebar Navigation - matching Dashboard.css */
-.aside {
-  position: fixed;
-  left: 0;
-  top: 80px;
-  width: 280px;
-  height: calc(100vh - 80px);
-  background: white;
-  border-right: 2px solid #eee;
-  padding: 2rem 0;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
-  overflow-y: auto;
-  z-index: 100;
-}
-
-.aside p {
+.aside > p {
   display: flex;
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.5rem;
-  margin: 0.5rem 1rem;
-  color: #555;
-  font-size: 1.1rem;
+  margin: 0.25rem 1rem;
+  font-size: 0.95rem;
   font-weight: 500;
-  border-radius: 12px;
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.3s ease;
+  border-radius: var(--radius-md);
+  transition: var(--transition);
 }
 
-.aside p:hover {
-  background: linear-gradient(135deg, #3d1d77 0%, #61dafb 100%);
-  color: white;
-  transform: translateX(5px);
+.aside > p:hover {
+  background: var(--bg-sidebar);
+  color: var(--primary);
 }
 
-.aside p:hover svg {
-  color: white !important;
+.aside > p:hover svg {
+  color: var(--primary) !important;
 }
 
-.aside-link {
-  text-decoration: none;
-}
+/* ============================================
+   MAIN CONTENT
+   ============================================ */
 
-.aside-link p {
-  background: linear-gradient(135deg, #3d1d77 0%, #61dafb 100%);
-  color: white;
-}
-
-.aside-link p svg {
-  color: white !important;
-}
-
-/* Main Content Area */
 main {
-  margin-left: 300px;
-  padding: 2rem 3rem;
-  width: calc(100% - 300px);
-  min-height: calc(100vh - 80px);
+  flex: 1;
+  margin-left: 280px;
+  padding-top: 180px; /* Space for header */
+  max-width: 1400px;
+  width: 100%;
 }
 
-main h2 {
-  color: #3d1d77;
-  font-size: 2rem;
+main > h2 {
+  font-size: 2.25rem;
   font-weight: 700;
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
 }
 
-/* Loading and Empty States */
+main > h2::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+  border-radius: 2px;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* ============================================
+   LOADING & EMPTY STATES
+   ============================================ */
+
+.loading,
 main > p {
   text-align: center;
-  padding: 3rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  color: #555;
-  font-size: 1.1rem;
+  padding: 4rem 2rem;
+  color: var(--text-muted);
+  font-size: 1.05rem;
 }
 
-/* Sessions List */
-ul {
+/* ============================================
+   SESSIONS LIST
+   ============================================ */
+
+main > ul {
   list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 2rem;
+  margin-bottom: 3rem;
 }
 
 .session-item {
-  background: #f9f9f9;
-  border: 2px solid #eee;
-  border-radius: 12px;
-  padding: 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition);
   position: relative;
   overflow: hidden;
+  box-shadow: var(--shadow-1);
 }
 
 .session-item::before {
   content: '';
   position: absolute;
-  top: 0;
   left: 0;
+  top: 0;
   width: 4px;
   height: 100%;
-  background: linear-gradient(180deg, #3d1d77 0%, #61dafb 100%);
+  background: linear-gradient(180deg, var(--primary) 0%, var(--accent) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .session-item:hover {
-  border-color: #61dafb;
-  box-shadow: 0 4px 16px rgba(61, 29, 119, 0.1);
-  transform: translateX(5px);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-3);
+  transform: translateY(-2px);
 }
 
-.session-item strong {
-  display: block;
-  color: #3d1d77;
-  font-size: 1.3rem;
+.session-item:hover::before {
+  opacity: 1;
+}
+
+.session-item:active {
+  transform: translateY(0);
+}
+
+.session-item.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--bg-sidebar);
+}
+
+.session-item.disabled:hover {
+  transform: none;
+  border-color: var(--border);
+  box-shadow: var(--shadow-1);
+}
+
+.session-item.disabled::before {
+  display: none;
+}
+
+/* Session Header */
+.session-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.session-header strong {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+/* Session Message */
+.session-message {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+
+.expired-badge,
+.upcoming-badge,
+.unread-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
   font-weight: 700;
-  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
-.session-item:hover strong {
-  color: #2d1557;
+.expired-badge {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
 }
 
-/* Horizontal Rule */
+.upcoming-badge {
+  background: rgba(159, 122, 234, 0.15);
+  color: var(--primary);
+}
+
+.unread-badge {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  color: white;
+  position: absolute;
+  bottom: 1.75rem;
+  right: 1.75rem;
+  box-shadow: var(--shadow-2);
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+.renew-button {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-2);
+  margin-top: 0.5rem;
+}
+
+.renew-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-3);
+}
+
+.renew-button:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   DIVIDER
+   ============================================ */
+
 hr {
   border: none;
-  border-top: 2px solid #eee;
+  height: 1px;
+  background: var(--border);
   margin: 3rem 0;
 }
 
-/* Therapist Availability Section */
+/* ============================================
+   THERAPIST AVAILABILITY
+   ============================================ */
+
 .availability-container {
-  background: white;
-  padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-2);
+  border: 1px solid var(--border);
   margin-top: 2rem;
 }
 
+.availability-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
 .availability-header h2 {
-  color: #3d1d77;
-  font-size: 1.8rem;
+  font-size: 1.75rem;
   font-weight: 700;
+  color: var(--primary);
   margin-bottom: 0.5rem;
 }
 
 .availability-header h4 {
-  color: #555;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 400;
+  color: var(--text-muted);
   margin-bottom: 1.5rem;
 }
 
 /* Legend */
 .legend {
   display: flex;
-  gap: 2rem;
+  justify-content: center;
   flex-wrap: wrap;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: #f9f9f9;
-  border-radius: 8px;
+  gap: 2rem;
+  padding: 1.25rem;
+  background: var(--bg-sidebar);
+  border-radius: var(--radius-md);
 }
 
 .legend-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.9rem;
-  color: #555;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .dot {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  display: inline-block;
+  flex-shrink: 0;
 }
 
 .dot.available {
-  background: linear-gradient(135deg, #4caf50 0%, #81c784 100%);
+  background: var(--success);
 }
 
 .dot.booked {
-  background: linear-gradient(135deg, #f44336 0%, #e57373 100%);
+  background: var(--primary);
 }
 
 .dot.unavailable {
-  background: linear-gradient(135deg, #9e9e9e 0%, #bdbdbd 100%);
+  background: #cbd5e0;
 }
 
-/* Availability Grid */
 .availability-grid {
   overflow-x: auto;
-  margin-bottom: 2rem;
+  width: 100%;
 }
 
 .availability-grid table {
-  width: 100%;
   border-collapse: collapse;
-  background: white;
+  width: max-content; 
+  table-layout: auto; /* avoid fixed column widths */
 }
 
+.availability-grid .time-column {
+  position: sticky;
+  left: 0;
+  background: var(--bg-sidebar);
+  z-index: 3;
+  text-align: left;
+}
+
+
+
 .availability-grid thead {
-  background: linear-gradient(135deg, #3d1d77 0%, #61dafb 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
 }
 
 .availability-grid th {
   padding: 1rem;
-  text-align: center;
+  color: white;
   font-weight: 600;
-  font-size: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.875rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+
+.availability-grid tbody tr {
+  transition: background 0.2s ease;
+}
+
+.availability-grid tbody tr:hover {
+  background: rgba(159, 122, 234, 0.02);
 }
 
 .availability-grid td {
-  padding: 1rem;
+  padding: 0.875rem;
   text-align: center;
-  border: 1px solid #eee;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--border);
+  transition: var(--transition);
 }
 
-.time-column {
-  background: #f9f9f9;
-  font-weight: 600;
-  color: #3d1d77;
+.availability-grid tbody tr:last-child td {
+  border-bottom: none;
 }
 
-.slot {
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
+
+.slot{
+  border-radius:var(--radius-sm); 
+  text-align: center;
+   font-weight: 600;
+  font-size: 0.8rem;
+  padding: 0.5rem 1rem;
+  
 }
+
 
 .slot.available {
-  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-  color: #2e7d32;
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.3);
 }
 
 .slot.available:hover {
-  background: linear-gradient(135deg, #4caf50 0%, #81c784 100%);
+  background: var(--success);
   color: white;
+  border-color: var(--success);
   transform: scale(1.05);
+  cursor: pointer;
 }
 
 .slot.booked {
-  background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
-  color: #c62828;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  border-color: var(--primary);
   cursor: not-allowed;
+  font-weight: 700;
 }
 
 .slot.unavailable {
-  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
-  color: #757575;
+  background: rgba(203, 213, 224, 0.2);
+  color: #94a3b8;
+  border-color: rgba(203, 213, 224, 0.4);
 }
 
 .slot.unavailable:hover {
-  background: linear-gradient(135deg, #9e9e9e 0%, #bdbdbd 100%);
-  color: white;
+  background: rgba(159, 122, 234, 0.1);
+  color: var(--primary);
+  border-color: var(--accent);
   transform: scale(1.05);
+  cursor: pointer;
 }
 
-/* Availability Footer */
+
 .availability-footer {
-  background: #f0ebf8;
-  padding: 1rem 1.5rem;
-  border-radius: 8px;
-  border-left: 4px solid #3d1d77;
+  background: linear-gradient(135deg, rgba(159, 122, 234, 0.05) 0%, rgba(61, 29, 119, 0.05) 100%);
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--accent);
 }
 
 .availability-footer p {
-  color: #555;
-  font-size: 0.95rem;
   margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
 }
 
-/* Loading State */
-.loading {
-  text-align: center;
-  padding: 3rem;
-  color: #555;
-  font-size: 1.2rem;
-  font-weight: 500;
+.availability-footer strong {
+  color: var(--primary);
+  font-weight: 600;
 }
 
-/* Scrollbar Styling */
-.aside::-webkit-scrollbar {
-  width: 6px;
-}
 
-.aside::-webkit-scrollbar-track {
-  background: #eee;
-}
-
-.aside::-webkit-scrollbar-thumb {
-  background: #3d1d77;
-  border-radius: 3px;
-}
-
-.aside::-webkit-scrollbar-thumb:hover {
-  background: #61dafb;
-}
-
-/* Animation for session cards on load */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+@media (max-width: 1024px) {
+  .header{
+    width: 100%;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.session-item {
-  animation: fadeInUp 0.4s ease forwards;
-}
-
-.session-item:nth-child(1) { animation-delay: 0.1s; }
-.session-item:nth-child(2) { animation-delay: 0.2s; }
-.session-item:nth-child(3) { animation-delay: 0.3s; }
-.session-item:nth-child(4) { animation-delay: 0.4s; }
-.session-item:nth-child(5) { animation-delay: 0.5s; }
-
-/* Responsive Design */
-@media (max-width: 968px) {
   .aside {
-    width: 80px;
-  }
-
-  .aside p {
-    flex-direction: column;
-    gap: 0.3rem;
-    padding: 1rem 0.5rem;
-    font-size: 0.7rem;
-    text-align: center;
-  }
-
-  .aside p svg {
-    width: 30px !important;
-    height: 30px !important;
+    width: 240px;
   }
 
   main {
-    margin-left: 100px;
-    width: calc(100% - 100px);
-    padding: 1.5rem 1rem;
+    margin-left: 240px;
+    width: calc(100% - 240px);
+    padding: 2rem;
   }
 
-  .sessions-container > .logo {
-    left: 1rem;
-    width: 60px;
-    height: 60px;
+  main > h2 {
+    font-size: 2rem;
   }
 
-  .sessions-container > h1 {
-    left: 5rem;
-    font-size: 1.2rem;
-  }
-
-  .sessions-container > h5 {
-    left: 5rem;
-    font-size: 0.75rem;
-  }
-
-  .legend {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .availability-grid {
-    font-size: 0.8rem;
-  }
-
-  .availability-grid th,
-  .availability-grid td {
-    padding: 0.5rem;
+  .aside-link p {
+    font-size: 0.875rem;
   }
 }
 
 @media (max-width: 768px) {
-  .aside {
-    width: 70px;
+  .aside{
+    display: none;
   }
-
+  main{
+    width: 100%;
+    margin-left: 0;
+  }
+ 
+}
+@media (max-width: 480px) {
+  .header{
+    width: 100%;
+  }
   main {
-    margin-left: 85px;
-    width: calc(100% - 85px);
     padding: 1rem;
   }
 
-  main h2 {
+  main > h2 {
     font-size: 1.5rem;
   }
 
-  .ThHeader {
-    padding: 0 1rem;
+  .session-item {
+    padding: 1rem;
   }
 
-  .ThHeader h1 {
-    font-size: 1.2rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .aside {
-    width: 60px;
-  }
-
-  .aside p {
-    font-size: 0.6rem;
-    padding: 0.8rem 0.3rem;
-  }
-
-  main {
-    margin-left: 75px;
-    width: calc(100% - 75px);
-  }
-
-  .sessions-container > .logo {
-    width: 50px;
-    height: 50px;
-  }
-
-  .sessions-container > h1 {
+  .session-header strong {
     font-size: 1rem;
   }
 
-  .sessions-container > h5 {
+  .session-message {
+    font-size: 0.875rem;
+  }
+
+  .availability-container {
+    padding: 1rem;
+  }
+
+  .availability-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .availability-header h4 {
+    font-size: 0.875rem;
+  }
+
+  .aside-link p,
+  .aside > p {
+    font-size: 0.65rem;
+  }
+
+  .header h1 {
+    font-size: 1.25rem;
+  }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus States */
+.aside-link:focus,
+.session-item:focus,
+.renew-button:focus,
+.slot:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+  .header,
+  .aside,
+  .renew-button {
     display: none;
   }
 
-  .availability-grid table {
-    font-size: 0.7rem;
+  main {
+    margin-left: 0;
+    padding: 0;
   }
-}
-.sessions-container {
-  padding: 20px;
-  max-width: 800px;
-  margin: 0 auto;
-}
 
-.sessions-container h2 {
-  margin-bottom: 20px;
-  color: #333;
-}
-
-.sessions-container ul {
-  list-style: none;
-  padding: 0;
-}
-
-.session-item {
-  background: white;
-  padding: 20px;
-  margin-bottom: 15px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: all 0.2s;
-  border-left: 4px solid #4a90e2;
-}
-
-.session-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.session-item.disabled {
-  border-left-color: #dc3545;
-  background: #f8f9fa;
-  cursor: not-allowed;
-}
-
-.session-item.disabled:hover {
-  transform: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.session-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.session-header strong {
-  font-size: 18px;
-  color: #333;
-}
-
-.expired-badge {
-  background: #dc3545;
-  color: white;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.upcoming-badge {
-  background: #28a745;
-  color: white;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.session-message {
-  color: #666;
-  font-size: 14px;
-  margin: 10px 0;
-  font-style: italic;
-}
-
-.session-item.disabled .session-message {
-  color: #dc3545;
-  font-weight: 600;
-  font-style: normal;
-}
-
-.renew-button {
-  background: #4a90e2;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: background 0.2s;
-}
-
-.renew-button:hover {
-  background: #357abd;
-}
-
-.unread-badge {
-  background: #ff6b6b;
-  color: white;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: bold;
-  margin-left: 10px;
+  .session-item {
+    page-break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #000;
+  }
 }

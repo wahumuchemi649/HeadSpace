@@ -1,8 +1,9 @@
 import { useState, useEffect} from "react";
 import { useNavigate } from "react-router-dom"; // Fixed import
 import {format} from 'date-fns';
-import { MdPeople,MdDashboard,MdCalendarToday, MdMessage, MdNote, MdLogout } from "react-icons/md";
+import { MdPeople,MdDashboard, MdNote, MdLogout } from "react-icons/md";
 import { FiCalendar } from "react-icons/fi";
+import Api_Base from './Api'
 import './TherapyDashboard.css';
 import { Link } from "react-router-dom";
 function UpcomingSessions() {
@@ -17,7 +18,7 @@ function UpcomingSessions() {
 
     const fetchUpcomingSessions = async () => {
         try {
-            const res = await fetch(`http://localhost:8000/upcoming-sessions/`, {
+            const res = await fetch(`${Api_Base}upcoming-sessions/`, {
                 credentials: 'include'
             });
 
@@ -180,7 +181,7 @@ function Cards({ title, numbers, description}) {
     });
 
     useEffect(() => {
-        fetch("http://localhost:8000/dashboard/",{
+        fetch(`${Api_Base}dashboard/`,{
             method: "GET",
             credentials: "include",
         })

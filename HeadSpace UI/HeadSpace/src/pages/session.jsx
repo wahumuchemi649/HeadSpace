@@ -244,13 +244,10 @@ function Booking() {
             alert('Please select a reason for booking')
             return
         }
-        if (!selectedSlot) {  // ✅ ADD THIS CHECK
+        if (!selectedSlot) { 
         alert('Please select a time slot')
         return
-    }
-    console.log('🔍 selectedSlot.time:', selectedSlot.time) // ✅ ADD THIS
-    console.log('🔍 selectedSlot.date:', selectedSlot.date) // ✅ ADD THIS
-        
+    }   
         const booking_data = {
             therapist_id: selectedTherapist.id,
             reason_category: reasonCategory,

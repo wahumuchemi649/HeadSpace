@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import './Mysessions.css'
+import Api_Base from './Api'
 import { MdRadioButtonChecked } from "react-icons/md"
 import { AiFillDashboard } from 'react-icons/ai'
 import { FiCalendar, FiTrendingUp, FiHome } from 'react-icons/fi'
@@ -16,7 +17,7 @@ export default function MySessions() {
 
   useEffect(() => {
     console.log("useEffect running - about to fetch");
-    fetch(`http://localhost:8000/chat/my_sessions/`, {
+    fetch(`${Api_Base}chat/my_sessions/`, {
       credentials: "include",
     })
       .then(res => {
@@ -26,8 +27,7 @@ export default function MySessions() {
         return res.json();
       })
       .then(data => {
-        console.log("Data received from backend:", data);
-        console.log("About to setSessions with:", data);
+
         setSessions(data);
         console.log("setSessions called");
       })
@@ -40,7 +40,7 @@ export default function MySessions() {
       return;
     }
 
-    // ✅ Check if session can be accessed yet
+    
     if (!session.can_access) {
       alert("This session hasn't started yet. Please wait until the scheduled time.");
       return;
@@ -54,9 +54,10 @@ export default function MySessions() {
 
   return (
     <div className="sessions-container">
-      <MdRadioButtonChecked className='logo' size={80} color='#3d1d77'/>
+      <header className='header'>
+        <MdRadioButtonChecked className='logo' size={80} color='#3d1d77'/>
       <h1>HeadSpace</h1>
-      <h5>Your Mental Wellness Companion</h5>
+      </header>
         <aside className='aside'>
     
     <Link to="/Dashboard" className="aside-link">
