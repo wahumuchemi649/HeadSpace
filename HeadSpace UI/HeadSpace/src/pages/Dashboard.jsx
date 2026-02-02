@@ -1,5 +1,4 @@
 import './Dashboard.css'
-import './Mood.jsx'
 import  Avatar from './Avatar.jsx'
 import { useState,useEffect } from 'react';
 import { Link } from 'react-router';
