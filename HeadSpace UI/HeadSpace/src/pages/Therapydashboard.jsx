@@ -4,7 +4,7 @@ import {format} from 'date-fns';
 import { MdPeople,MdDashboard, MdNote, MdLogout } from "react-icons/md";
 import { FiCalendar } from "react-icons/fi";
 import Api_Base from './Api'
-import './TherapyDashboard.css';
+import './Therapydashboard.css';
 import { Link } from "react-router-dom";
 function UpcomingSessions() {
     const [sessions, setSessions] = useState([]);
