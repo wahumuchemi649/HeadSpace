@@ -1,3 +1,3 @@
-const Api_Base = import.meta.env.VITE_API_BASE
-const WS_BASE = Api_Base.replace(/^http/, "ws");
-export  default {Api_Base, WS_BASE}
+// Api.js
+export const API_BASE = import.meta.env.VITE_API_BASE;
+export const WS_BASE = API_BASE.replace(/^http/, "ws");

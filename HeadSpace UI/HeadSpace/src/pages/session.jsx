@@ -1,6 +1,6 @@
 import './session.css'
 import { useEffect, useState } from 'react'
-import Api_Base from './Api'
+import {Api_Base} from './Api'
 import { FileChartLine } from 'lucide-react'
 
 function Cards({ onselect, therapists, selectedTherapist }) {

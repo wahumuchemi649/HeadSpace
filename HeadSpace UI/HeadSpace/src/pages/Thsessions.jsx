@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {Link, useNavigate } from "react-router-dom";
 import './Mysessions.css'
-import Api_Base from './Api'
+import {Api_Base} from './Api'
 import { AiFillDashboard } from "react-icons/ai";
 import { FiCalendar } from "react-icons/fi";
 import { MdRadioButtonChecked } from "react-icons/md";
