@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import './landing.css';
-import {Api_Base} from './Api'
+import Api_Base from './Api'
 import Dashboard from "./Dashboard";
 import TherapyLogin from "./TherapyLogin";
 import { AiFillHeart } from "react-icons/ai";
