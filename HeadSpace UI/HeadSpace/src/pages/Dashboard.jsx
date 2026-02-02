@@ -1,7 +1,7 @@
 import './Dashboard.css'
 import  Avatar from './Avatar.jsx'
 import { useState,useEffect } from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { AiFillHeart } from 'react-icons/ai'
 import { AiFillMessage,AiFillDashboard } from 'react-icons/ai'
 import {FiTrendingUp,FiCalendar} from "react-icons/fi";
