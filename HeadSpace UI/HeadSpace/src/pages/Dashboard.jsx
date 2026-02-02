@@ -9,7 +9,7 @@ import {FiTrendingUp,FiCalendar} from "react-icons/fi";
 import { FiHome,FiPhone } from 'react-icons/fi';
 import { Ban } from "lucide-react";
 import MoodChart from './Mood.jsx';
-import {Api_Base} from './Api.js'
+import Api_Base from './Api.js'
 
 function UpcomingSessions() {
     const [sessions, setSessions] = useState([]);
