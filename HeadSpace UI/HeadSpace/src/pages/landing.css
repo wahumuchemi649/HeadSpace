@@ -5,26 +5,26 @@
 }
 
 /* ---------------- HEADER ---------------- */
-.header {
+.Landingheader {
   background: linear-gradient(to bottom right, #e8f7ff, #f3efff);
   padding: 60px 20px;
   display: block;
   text-align: center;
 }
 
-.header h1 {
+.Landingheader h1 {
   color: #3d1d77;
   font-size: 42px;
   margin-bottom: 10px;
 }
 
-.header p {
+.Landingheader p {
   color: #555;
   margin: 5px 0;
   font-size: 16px;
 }
 
-.header a {
+.Landingheader a {
   background-color: #3d1d77;
   color: #fff;
   padding: 12px 28px;
@@ -36,7 +36,7 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.header a:hover {
+.Landingheader a:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 20px rgba(61, 29, 119, 0.3);
 }

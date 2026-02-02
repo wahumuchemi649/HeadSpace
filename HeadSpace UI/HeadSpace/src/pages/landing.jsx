@@ -13,7 +13,7 @@ import { FiMail,FiPhone,FiMap } from "react-icons/fi";
 function Landing(){
     return(
        <div className="landing-page">
-       <div className="header">
+       <div className="Landingheader">
         <AiFillHeart size={50} color="#61dafbaa"/>
         <h1>HeadSpace</h1>
         <p>Your Healing journey Starts here</p>
