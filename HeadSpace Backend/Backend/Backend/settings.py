@@ -65,12 +65,12 @@ MIDDLEWARE = [
     #'corsheaders.middleware.CorsMiddleware',
     
 ]
-SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SECURE = True 
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_DOMAIN = None
 CORS_ALLOW_CREDENTIALS = True
-CSRF_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_NAME = 'sessionid'
 SESSION_COOKIE_AGE = 1209600
@@ -78,14 +78,10 @@ SESSION_COOKIE_AGE = 1209600
 
 
 CORS_ALLOWED_ORIGINS = [
-    "https://headspace.onrender.com",
-    "https://headspace-git-master-wahu-muchemis-projects.vercel.app",
     "http://localhost:5173",  # or whatever port React runs on
 ]
 
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https://.*\.vercel\.app$",  # Matches all your Vercel deployments
-]
+
 CORS_ALLOW_METHODS = [
     'DELETE',
     'GET',
@@ -110,7 +106,8 @@ CORS_ALLOW_HEADERS = [
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
-     "https://headspace-r8nf.onrender.com",
+    "https://headspace-r8nf.onrender.com",
+    "https://*.vercel.app",  # Keep this for Vercel
 ]
 
 ROOT_URLCONF = 'Backend.urls'
