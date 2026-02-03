@@ -81,6 +81,10 @@ CORS_ALLOWED_ORIGINS = [
     "https://headspace.onrender.com",
     "http://localhost:5173",  # or whatever port React runs on
 ]
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://.*\.vercel\.app$",  # Matches all your Vercel deployments
+]
 CORS_ALLOW_METHODS = [
     'DELETE',
     'GET',
