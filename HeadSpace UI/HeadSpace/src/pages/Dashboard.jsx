@@ -171,7 +171,7 @@ function Dashboard(){
       credentials:"include"
     })
     .then(res=>{
-      if(!res.ok) throw new console.error('Response not okay');
+      if(!res.ok) throw new Error('Response not okay');
       return res.json()
     })
     .then(data=>{
