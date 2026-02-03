@@ -79,6 +79,7 @@ SESSION_COOKIE_AGE = 1209600
 
 CORS_ALLOWED_ORIGINS = [
     "https://headspace.onrender.com",
+    "https://headspace-git-master-wahu-muchemis-projects.vercel.app",
     "http://localhost:5173",  # or whatever port React runs on
 ]
 
