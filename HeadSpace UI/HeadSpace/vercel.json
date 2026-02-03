@@ -1,8 +1,0 @@
-{
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "https://headspace-r8nf.onrender.com/api/:path*"
-    }
-  ]
-}
