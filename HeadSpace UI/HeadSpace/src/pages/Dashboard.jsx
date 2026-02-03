@@ -77,7 +77,7 @@ function UpcomingSessions() {
         return category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     };
 
-    // ✅ Show error state
+    
     if (error) {
         return (
             <div className="error-state">
