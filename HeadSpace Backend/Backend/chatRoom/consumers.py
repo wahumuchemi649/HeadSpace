@@ -1,4 +1,4 @@
-import json
+'''import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from .models import Message
 from therapy.models import therapists
@@ -48,3 +48,43 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'therapist_id': event['therapist_id'],
             'timestamp': event['timestamp'],
         }))
+'''
+# chat/consumers.py
+from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from rest_framework_simplejwt.tokens import AccessToken
+from django.contrib.auth.models import User
+
+class ChatConsumer(AsyncJsonWebsocketConsumer):
+    async def connect(self):
+        # Get token from query string
+        query_string = self.scope['query_string'].decode()
+        token = None
+        
+        for param in query_string.split('&'):
+            if param.startswith('token='):
+                token = param.split('=')[1]
+                break
+        
+        if not token:
+            await self.close()
+            return
+        
+        try:
+            # Verify JWT token
+            access_token = AccessToken(token)
+            user_id = access_token['user_id']
+            self.scope['user'] = await self.get_user(user_id)
+            
+            # Rest of your connect logic
+            self.session_id = self.scope['url_route']['kwargs']['session_id']
+            # ...
+            
+            await self.accept()
+        except Exception as e:
+            print(f"WebSocket auth failed: {e}")
+            await self.close()
+    
+    async def get_user(self, user_id):
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        return await User.objects.aget(id=user_id)

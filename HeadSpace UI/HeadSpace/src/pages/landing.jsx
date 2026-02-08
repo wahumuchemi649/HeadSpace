@@ -1,8 +1,5 @@
 import { Link } from "react-router-dom";
 import './landing.css';
-import {Api_Base} from './Api'
-import Dashboard from "./Dashboard";
-import TherapyLogin from "./TherapyLogin";
 import { AiFillHeart } from "react-icons/ai";
 import {FiMessageCircle,FiTrendingUp,FiShield,FiClock} from "react-icons/fi";
 import { User, Stethoscope } from 'lucide-react';
@@ -69,8 +66,8 @@ function Landing(){
             <h2>Therapist Portal</h2>
             <p>Manage your client sessions, track their progress, and provide professional support through our secure platform.</p>
             <Link to='/TherapyLogin'> Login</Link>
-            <p>Want to join our Team?</p>
-            <Link to='#'>Apply Now</Link>
+            <p>Applications are reviewed manually</p>
+            <Link to='/Therapist-apply'>Apply To Join Our Therapist Network</Link>
 
           </div>
 
@@ -97,7 +94,7 @@ function Landing(){
             <div className="thefooters">
               <h2>Contact us</h2>
               <p><FiMail size={20} color="#61dafb" /><strong>Email:</strong>chelsfavor@gmail.com</p>
-              <p><FiPhone size={20} color="#61dafb" /><strong>Phone:</strong> +254 711 223 344</p>
+              <p><FiPhone size={20} color="#61dafb" /><strong>Phone:</strong> +254 757438047</p>
               <p><FiMap size={20} color="#61dafb" /><strong>Location:</strong>Kisii, Kenya</p>
               </div>
           </div>

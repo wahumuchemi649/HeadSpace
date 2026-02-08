@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import {Link, useNavigate } from "react-router-dom";
-import './Mysessions.css'
-import {Api_Base} from './Api'
+import { Link, useNavigate } from "react-router-dom";
+import './Mysessions.css';
+import { Api_Base } from './Api';
 import { AiFillDashboard } from "react-icons/ai";
 import { FiCalendar } from "react-icons/fi";
 import { MdRadioButtonChecked } from "react-icons/md";
@@ -10,17 +10,32 @@ function TherapistAvailability() {
   const [grid, setGrid] = useState([]);
   const [days, setDays] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  // Load availability grid
   useEffect(() => {
     fetchGrid();
   }, []);
 
   const fetchGrid = () => {
-    fetch(`${Api_Base}therapist/availability/`, {
-      credentials: "include",
+    const token = localStorage.getItem('access_token');
+    
+    if (!token) {
+      navigate('/TherapyLogin');
+      return;
+    }
+
+    fetch(`${Api_Base}/therapist/availability/`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
     })
       .then((res) => {
+        if (res.status === 401) {
+          localStorage.clear();
+          navigate('/TherapyLogin');
+          throw new Error('Unauthorized');
+        }
         if (!res.ok) throw new Error("Failed to load availability");
         return res.json();
       })
@@ -35,17 +50,19 @@ function TherapistAvailability() {
       });
   };
 
-  // Toggle slot availability
   const toggleSlot = (dayOfWeek, timeSlot, isBooked) => {
-    // Don't do anything if slot is booked
     if (isBooked) {
-      return; // ← Just return, no alert, no action
+      return;
     }
 
-    fetch(`${Api_Base}therapist/availability/toggle/`, {
+    const token = localStorage.getItem('access_token');
+
+    fetch(`${Api_Base}/therapist/availability/toggle/`, {
       method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
         day_of_week: dayOfWeek,
         time_slot: timeSlot,
@@ -60,7 +77,6 @@ function TherapistAvailability() {
         return res.json();
       })
       .then(() => {
-        // Refresh grid
         fetchGrid();
       })
       .catch((err) => {
@@ -71,7 +87,6 @@ function TherapistAvailability() {
   if (loading) {
     return <div className="loading">Loading your schedule...</div>;
   }
-  
 
   return (
     <div className="availability-container">
@@ -115,7 +130,7 @@ function TherapistAvailability() {
                   if (slot.is_booked) {
                     cellClass += "booked";
                     cellText = "BOOKED";
-                    isClickable = false; // ← Mark as not clickable
+                    isClickable = false;
                   } else if (slot.is_available) {
                     cellClass += "available";
                     cellText = "Available";
@@ -171,12 +186,27 @@ export default function ThSessions() {
   console.log("Current sessions state:", sessions);
 
   useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    
+    if (!token) {
+      navigate('/TherapyLogin');
+      return;
+    }
+
     console.log("useEffect running - about to fetch");
-    fetch(`${Api_Base}chat/my_sessions/`, {
-      credentials: "include",
+    fetch(`${Api_Base}/chat/my_sessions/`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
     })
       .then(res => {
         console.log("Response status:", res.status);
+        if (res.status === 401) {
+          localStorage.clear();
+          navigate('/TherapyLogin');
+          throw new Error('Unauthorized');
+        }
         if (res.status === 304) return [];
         if (!res.ok) throw new Error("Failed to load sessions");
         return res.json();
@@ -188,33 +218,29 @@ export default function ThSessions() {
         console.log("setSessions called");
       })
       .catch(err => console.error("Error:", err));
-  }, []);
+  }, [navigate]);
 
   console.log("Right before return, sessions is:", sessions);
 
   const handleSessionClick = (session) => {
-    // ✅ Check if session is expired
     if (session.is_expired) {
       alert("This session has expired. Please book a new session to continue.");
       return;
     }
 
-    // ✅ Check if session can be accessed yet
     if (!session.can_access) {
       alert("This session hasn't started yet. Please wait until the scheduled time.");
       return;
     }
 
-    // Navigate to chat room
     navigate(`/chatRoom/${session.id}`);
   };
-
 
   return (
     <div className="sessions-container">
       <header className="header">
-      <MdRadioButtonChecked className='logo' size={80} color='#3d1d77'/>
-      <h1>HeadSpace</h1>
+        <MdRadioButtonChecked className='logo' size={80} color='#3d1d77'/>
+        <h1>HeadSpace</h1>
       </header>
       
       <aside className="aside">
@@ -228,71 +254,70 @@ export default function ThSessions() {
             <FiCalendar size={40} color="#555" /> My Sessions
           </p>
         </Link>
-
       </aside>
-      <main>
-<h2>My Sessions</h2>
-
-      {sessions === null && <p>Loading sessions...</p>}
-
-      {sessions && sessions.length === 0 && <p>No sessions booked yet</p>}
-
-      {sessions && sessions.length > 0 && (
-        <ul>
-          {sessions.map((s) => {
-            console.log("Rendering session:", s);
-            const isDisabled = s.is_expired || !s.can_access;
-            const cardClass = `session-item ${isDisabled ? 'disabled' : ''}`;
-
-            return (
-              <li
-                key={s.id}
-                className={cardClass}
-                onClick={() => !isDisabled && handleSessionClick(s)}
-                style={{
-                  cursor: isDisabled ? 'not-allowed' : 'pointer',
-                  opacity: isDisabled ? 0.6 : 1
-                }}
-              >
-                <div className="session-header">
-                  <strong>{s.other_party}</strong>
-                  {s.is_expired && (
-                    <span className="expired-badge">EXPIRED</span>
-                  )}
-                  {s.status === 'scheduled' && !s.is_expired && (
-                    <span className="upcoming-badge">UPCOMING</span>
-                  )}
-                </div>
-
-                <div className="session-message">
-                  {s.last_message}
-                </div>
-
-                {s.is_expired && (
-                  <button 
-                    className="renew-button"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent card click
-                      navigate('/booking');
-                    }}
-                  >
-                    Book New Session
-                  </button>
-                )}
-
-                {s.unread_count > 0 && !s.is_expired && (
-                  <span className="unread-badge">{s.unread_count} new</span>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      )}
-      <hr />
-      <TherapistAvailability />
-      </main>
       
+      <main>
+        <h2>My Sessions</h2>
+
+        {sessions === null && <p>Loading sessions...</p>}
+
+        {sessions && sessions.length === 0 && <p>No sessions booked yet</p>}
+
+        {sessions && sessions.length > 0 && (
+          <ul>
+            {sessions.map((s) => {
+              console.log("Rendering session:", s);
+              const isDisabled = s.is_expired || !s.can_access;
+              const cardClass = `session-item ${isDisabled ? 'disabled' : ''}`;
+
+              return (
+                <li
+                  key={s.id}
+                  className={cardClass}
+                  onClick={() => !isDisabled && handleSessionClick(s)}
+                  style={{
+                    cursor: isDisabled ? 'not-allowed' : 'pointer',
+                    opacity: isDisabled ? 0.6 : 1
+                  }}
+                >
+                  <div className="session-header">
+                    <strong>{s.other_party}</strong>
+                    {s.is_expired && (
+                      <span className="expired-badge">EXPIRED</span>
+                    )}
+                    {s.status === 'scheduled' && !s.is_expired && (
+                      <span className="upcoming-badge">UPCOMING</span>
+                    )}
+                  </div>
+
+                  <div className="session-message">
+                    {s.last_message}
+                  </div>
+
+                  {s.is_expired && (
+                    <button 
+                      className="renew-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate('/booking');
+                      }}
+                    >
+                      Book New Session
+                    </button>
+                  )}
+
+                  {s.unread_count > 0 && !s.is_expired && (
+                    <span className="unread-badge">{s.unread_count} new</span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        
+        <hr />
+        <TherapistAvailability />
+      </main>
     </div>
-    
   );
 }

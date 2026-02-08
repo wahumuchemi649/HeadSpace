@@ -1,4 +1,4 @@
-# chatRoom/views.py
+# chat/views.py
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
@@ -12,7 +12,7 @@ from therapy.models import therapists
 
 class MessageListCreateView(generics.ListCreateAPIView):
     serializer_class = MessageSerializer
-    permission_classes = [IsAuthenticated]  # Require authentication
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         session_id = self.kwargs['session_id']
@@ -24,10 +24,22 @@ class MessageListCreateView(generics.ListCreateAPIView):
             
             # Check if user is the patient or therapist in this session
             has_access = False
-            if hasattr(user, 'patient') and session.patient == user.patient:
-                has_access = True
-            elif hasattr(user, 'therapists') and session.therapist == user.therapists:
-                has_access = True
+            
+            # Check if user is a patient
+            try:
+                user_patient = patient.objects.get(user=user)
+                if session.patient == user_patient:
+                    has_access = True
+            except patient.DoesNotExist:
+                pass
+            
+            # Check if user is a therapist
+            try:
+                user_therapist = therapists.objects.get(user=user)
+                if session.therapist == user_therapist:
+                    has_access = True
+            except therapists.DoesNotExist:
+                pass
             
             if not has_access:
                 return Message.objects.none()
@@ -42,30 +54,40 @@ class MessageListCreateView(generics.ListCreateAPIView):
         session = get_object_or_404(Sessions, id=session_id)
         user = self.request.user
         
-        # Automatically detect if user is patient or therapist
-        if hasattr(user, 'patient'):
-            # User is a patient
-            if session.patient != user.patient:
+        # Try to get patient profile
+        try:
+            user_patient = patient.objects.get(user=user)
+            # Verify patient belongs to this session
+            if session.patient != user_patient:
                 raise PermissionError("You don't have access to this session")
             serializer.save(
-                session=session, 
-                sender_patient=user.patient, 
-                sender_therapist=session.therapist
+                session=session,
+                sender_patient=user_patient,
+                sender_therapist=None
             )
-        elif hasattr(user, 'therapists'):
-            # User is a therapist
-            if session.therapist != user.therapists:
+            return
+        except patient.DoesNotExist:
+            pass
+        
+        # Try to get therapist profile
+        try:
+            user_therapist = therapists.objects.get(user=user)
+            # Verify therapist belongs to this session
+            if session.therapist != user_therapist:
                 raise PermissionError("You don't have access to this session")
             serializer.save(
-                session=session, 
-                sender=None, 
-                sender_therapist=user.therapists
+                session=session,
+                sender_patient=None,
+                sender_therapist=user_therapist
             )
-        else:
-            raise PermissionError("User is neither patient nor therapist")
+            return
+        except therapists.DoesNotExist:
+            pass
+        
+        # If we get here, user is neither patient nor therapist
+        raise PermissionError("User profile not found")
 
 
-# Get user's active sessions
 class UserSessionsView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     
@@ -73,18 +95,40 @@ class UserSessionsView(generics.ListAPIView):
         user = request.user
         sessions = []
         
-        if hasattr(user, 'patient'):
-            # Get patient's sessions
+        # Try to get as patient
+        try:
+            user_patient = patient.objects.get(user=user)
             sessions = Sessions.objects.filter(
-                patient=user.patient,
+                patient=user_patient,
                 is_active=True
-            ).values('id', 'therapist__user__first_name', 'therapist__user__last_name', 'created_at')
-            
-        elif hasattr(user, 'therapists'):
-            # Get therapist's sessions
-            sessions = Sessions.objects.filter(
-                therapist=user.therapists,
-                is_active=True
-            ).values('id', 'patient__user__first_name', 'patient__user__last_name', 'created_at')
+            ).select_related('therapist').values(
+                'id',
+                'therapist__firstName',
+                'therapist__lastName',
+                'created_at',
+                'day',
+                'time'
+            )
+            return Response(list(sessions))
+        except patient.DoesNotExist:
+            pass
         
-        return Response(sessions)
+        # Try to get as therapist
+        try:
+            user_therapist = therapists.objects.get(user=user)
+            sessions = Sessions.objects.filter(
+                therapist=user_therapist,
+                is_active=True
+            ).select_related('patient').values(
+                'id',
+                'patient__firstName',
+                'patient__lastName',
+                'created_at',
+                'day',
+                'time'
+            )
+            return Response(list(sessions))
+        except therapists.DoesNotExist:
+            pass
+        
+        return Response({'error': 'User profile not found'}, status=404)

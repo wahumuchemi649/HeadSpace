@@ -1,33 +1,30 @@
 import './session.css'
 import { useEffect, useState } from 'react'
-import {Api_Base} from './Api'
+import { useNavigate } from 'react-router-dom'
+import { Api_Base } from './Api'
 import { FileChartLine } from 'lucide-react'
 
 function Cards({ onselect, therapists, selectedTherapist }) {
     const [index, setIndex] = useState(0)
-    
 
     useEffect(() => {
-    if (therapists.length <= 3) return
+        if (therapists.length <= 3) return
 
-    const timer = setInterval(() => {
-        setIndex(prev => (prev + 3) % therapists.length)
-    }, 5000)
+        const timer = setInterval(() => {
+            setIndex(prev => (prev + 3) % therapists.length)
+        }, 5000)
 
-    return () => clearInterval(timer)
-}, [therapists])
+        return () => clearInterval(timer)
+    }, [therapists])
 
+    let visibleTherapists = []
 
-   let visibleTherapists = []
-
-if (therapists.length > 0) {
-    const count = Math.min(3, therapists.length)
-
-    visibleTherapists = Array.from({ length: count }, (_, i) =>
-        therapists[(index + i) % therapists.length]
-    )
-}
-
+    if (therapists.length > 0) {
+        const count = Math.min(3, therapists.length)
+        visibleTherapists = Array.from({ length: count }, (_, i) =>
+            therapists[(index + i) % therapists.length]
+        )
+    }
 
     return (
         <div className='therapist-container'>
@@ -42,7 +39,7 @@ if (therapists.length > 0) {
                         padding: "10px"
                     }}
                 >
-                    <img src={`${Api_Base}media/${t.profile_pic}`} alt={t.profile_pic} />
+                    <img src={`${Api_Base}/media/${t.profile_pic}`} alt={t.profile_pic} />
                     <h3>{t.firstName} {t.lastName}</h3>
                     <p>{t.specialty_1}</p>
                     <p>{t.specialty_2}</p>
@@ -61,9 +58,8 @@ function TherapistAvailabilityGrid({ therapistId, onSlotSelect, selectedSlot }) 
     useEffect(() => {
         if (!therapistId) return;
 
-        fetch(`${Api_Base}therapist/${therapistId}/availability/`, {
-            credentials: "include",
-        })
+        // No auth needed - this is a public endpoint
+        fetch(`${Api_Base}/therapist/${therapistId}/availability/`)
             .then((res) => {
                 if (!res.ok) throw new Error("Failed to load availability");
                 return res.json();
@@ -79,36 +75,32 @@ function TherapistAvailabilityGrid({ therapistId, onSlotSelect, selectedSlot }) 
             });
     }, [therapistId]);
 
-    const selectSlot = (dayIndex, dayName, time, isAvailable, isBooked) => {
-        if (!isAvailable || isBooked) {
-            return; // Can't select unavailable or booked slots
-        }
+   const selectSlot = (dayIndex, dayName, time, isAvailable, isBooked) => {
+    if (!isAvailable || isBooked) return;
 
-        // Calculate actual date for this slot
-        const today = new Date();
-        const currentDayIndex = today.getDay(); // 0 = Sunday, 6 = Saturday
-        
-        // Convert to Monday = 0 format (like your backend)
-        const adjustedCurrentDay = currentDayIndex === 0 ? 6 : currentDayIndex - 1;
-        
-        let daysAhead = dayIndex - adjustedCurrentDay;
-        if (daysAhead < 0) {
-            daysAhead += 7;
-        }
-        
-        const selectedDate = new Date(today);
-        selectedDate.setDate(today.getDate() + daysAhead);
-        
-        const formattedDate = selectedDate.toISOString().split('T')[0]; // YYYY-MM-DD
+    const today = new Date();
 
-        // Pass selected slot to parent
-        onSlotSelect({
-            day: dayIndex,
-            dayName: dayName,
-            date: formattedDate,
-            time: time,
-        });
-    };
+    // Align JS with Python weekday (Monday = 0)
+    const adjustedCurrentDay = (today.getDay() + 6) % 7;
+
+    let daysAhead = dayIndex - adjustedCurrentDay;
+    if (daysAhead < 0) {
+        daysAhead += 7;
+    }
+
+    const selectedDate = new Date(today);
+    selectedDate.setDate(today.getDate() + daysAhead);
+
+    const formattedDate = selectedDate.toISOString().split('T')[0];
+
+    onSlotSelect({
+        day: dayIndex,
+        dayName,
+        date: formattedDate,
+        time,
+    });
+};
+
 
     if (loading) return <div className="loading">Loading schedule...</div>;
 
@@ -140,13 +132,12 @@ function TherapistAvailabilityGrid({ therapistId, onSlotSelect, selectedSlot }) 
                                 } else if (slot.is_available) {
                                     cellClass += "available";
                                     cellText = "Available";
-                                    isClickable = true; // ✅ Make available slots clickable
+                                    isClickable = true;
                                 } else {
                                     cellClass += "unavailable";
                                     cellText = "Off";
                                 }
 
-                                // Highlight selected slot
                                 const isSelected = selectedSlot?.day === slot.day && selectedSlot?.time === row.time;
                                 if (isSelected) {
                                     cellClass += " selected-slot";
@@ -186,6 +177,7 @@ function TherapistAvailabilityGrid({ therapistId, onSlotSelect, selectedSlot }) 
 }
 
 function Booking() {
+    const navigate = useNavigate();
     const [allTherapists, setAllTherapists] = useState([])
     const [filteredTherapists, setFilteredTherapists] = useState([])
     const [selectedTherapist, setSelectedTherapist] = useState(null)
@@ -195,15 +187,14 @@ function Booking() {
     const [frequency, setFrequency] = useState('once')
     const [selectedSlot, setSelectedSlot] = useState(null)
 
-
-    // Fetch all therapists
+    // Fetch all therapists (public endpoint)
     useEffect(() => {
         async function fetchTherapists() {
             try {
-                const res = await fetch(`${Api_Base}therapists/`)
+                const res = await fetch(`${Api_Base}/therapists/`)
                 const data = await res.json()
                 setAllTherapists(data)
-                setFilteredTherapists(data) // Initially show all
+                setFilteredTherapists(data)
             } catch (err) {
                 console.log(err)
             }
@@ -211,31 +202,38 @@ function Booking() {
         fetchTherapists()
     }, [])
 
- useEffect(() => {
-    if (!reasonCategory) {
-        setFilteredTherapists(allTherapists)
-        return
-    }
+    useEffect(() => {
+        if (!reasonCategory) {
+            setFilteredTherapists(allTherapists)
+            return
+        }
 
-    const filtered = allTherapists.filter(t => {
-        const therapistSpecialties = [
-            t.specialty_1,
-            t.specialty_2,
-            t.specialty_3,
-        ].filter(Boolean) // removes null / empty values
+        const filtered = allTherapists.filter(t => {
+            const therapistSpecialties = [
+                t.specialty_1,
+                t.specialty_2,
+                t.specialty_3,
+            ].filter(Boolean)
 
-        return therapistSpecialties.includes(reasonCategory)
-    })
+            return therapistSpecialties.includes(reasonCategory)
+        })
 
-    setFilteredTherapists(filtered.length > 0 ? filtered : allTherapists)
+        setFilteredTherapists(filtered.length > 0 ? filtered : allTherapists)
 
-    if (selectedTherapist && !filtered.find(th => th.id === selectedTherapist.id)) {
-        setSelectedTherapist(null)
-    }
-}, [reasonCategory, allTherapists, selectedTherapist])
-
+        if (selectedTherapist && !filtered.find(th => th.id === selectedTherapist.id)) {
+            setSelectedTherapist(null)
+        }
+    }, [reasonCategory, allTherapists, selectedTherapist])
 
     const handleSubmit = async () => {
+        // Check if user is logged in
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            alert('Please login to book a session');
+            navigate('/Login');
+            return;
+        }
+
         if (!selectedTherapist) {
             alert('Please select a therapist')
             return
@@ -245,38 +243,52 @@ function Booking() {
             return
         }
         if (!selectedSlot) { 
-        alert('Please select a time slot')
-        return
-    }   
+            alert('Please select a time slot')
+            return
+        }   
+
         const booking_data = {
             therapist_id: selectedTherapist.id,
             reason_category: reasonCategory,
-            reason_details: reasonDetails, // Optional
+            reason_details: reasonDetails,
             duration_minutes: parseInt(duration),
             frequency: frequency,
             date: selectedSlot.date, 
             time: selectedSlot.time,
         }
         console.log('📤 Sending booking data:', booking_data)
-        
 
         try {
-            const res = await fetch(`${Api_Base}session/`, {
+            const res = await fetch(`${Api_Base}/session/`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(booking_data),
-                credentials: 'include',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(booking_data)
             })
+
+            if (res.status === 401) {
+                alert('Session expired. Please login again.');
+                localStorage.clear();
+                navigate('/Login');
+                return;
+            }
+
             if (res.ok) {
+                const data = await res.json();
                 alert('Booking Confirmed!')
                 // Reset form
                 setSelectedTherapist(null)
                 setReasonCategory('')
                 setReasonDetails('')
-                 setSelectedSlot(null)  
+                setSelectedSlot(null)
+                
+                // Navigate to dashboard
+                navigate('/Dashboard');
             } else {
                 const error = await res.json()
-                alert(`Booking failed: ${error.message || 'Unknown error'}`)
+                alert(`Booking failed: ${error.error || 'Unknown error'}`)
             }
         } catch (err) {
             console.error(err)
@@ -414,11 +426,10 @@ function Booking() {
                     </div>
 
                     <TherapistAvailabilityGrid
-    therapistId={selectedTherapist.id}
-    onSlotSelect={setSelectedSlot}
-    selectedSlot={selectedSlot}
-/>
-
+                        therapistId={selectedTherapist.id}
+                        onSlotSelect={setSelectedSlot}
+                        selectedSlot={selectedSlot}
+                    />
                 </div>
             )}
 

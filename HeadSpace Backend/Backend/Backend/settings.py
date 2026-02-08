@@ -35,6 +35,13 @@ ALLOWED_HOSTS = ['.onrender.com', 'localhost']
 
 
 # Application definition
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Use your email provider
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'chelsfavor@gmail.com'  # Your email
+EMAIL_HOST_PASSWORD = '42131607k'  # Gmail App Password
+DEFAULT_FROM_EMAIL = 'HeadSpace <noreply@headspace.com>'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -48,10 +55,24 @@ INSTALLED_APPS = [
     'consultation',
     'chat',
     'rest_framework',
+    'rest_framework_simplejwt',
     'corsheaders',
     'channels',
     
 ]
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+}
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',

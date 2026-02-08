@@ -1,29 +1,26 @@
-
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import './TherapyLogin.css';
-import {Api_Base} from "./Api";
+import { Api_Base } from "./Api";
 import { MdRadioButtonChecked } from "react-icons/md";
-
 
 function TherapyLogin() {
   const [form, setForm] = useState({
     email: "",
     phoneNumber: ""
-  })
-  const [errors, setErrors] = useState({})
-  const [isSubmitting, setIsSubmitting] = useState(false); // ADD THIS
-
+  });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-
-    if (errors.global){
-      setErrors(prev =>({...prev, global:''}))
+    
+    if (errors.global) {
+      setErrors(prev => ({ ...prev, global: '' }));
     }
-  }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,88 +29,86 @@ function TherapyLogin() {
     
     if (!form.email || !form.phoneNumber) {
       setErrors({ global: "All fields required" });
-      return; // Removed alert - error state is enough
+      return;
     }
     
-    setIsSubmitting(true); // ADD THIS - start loading
+    setIsSubmitting(true);
     
     try {
-const res = await fetch(`${Api_Base}login/`, {
-  method: 'POST',
-  headers: { 'Content-Type': "application/json" },
-  body: JSON.stringify(form),
-  credentials: 'include'
-});
+      const res = await fetch(`${Api_Base}/login/`, {  // Note the /login/ path
+        method: 'POST',
+        headers: { 'Content-Type': "application/json" },
+        body: JSON.stringify(form)
+      });
 
-console.log("Response status:", res.status);  
-const data = await res.json();
-console.log("Login response:", data);
+      console.log("Response status:", res.status);  
+      const data = await res.json();
+      console.log("Login response:", data);
       
-      if (res.ok) {
-        localStorage.setItem("userEmail", form.email);
-        // Store token if your backend returns one
-        if (data.token) {
-          localStorage.setItem('therapist_token', data.token);
-        }
+      if (res.ok && data.access) {
+        // Store JWT tokens
+        localStorage.setItem("access_token", data.access);
+        localStorage.setItem("refresh_token", data.refresh);
+        localStorage.setItem("user", JSON.stringify(data.user));
         
+        console.log("✅ Tokens stored, redirecting...");
         navigate('/TherapyDashboard');
       } else {
         setErrors({ global: data.message || "Invalid Credentials" });
       }
     } catch (err) {
-      console.log(err);
+      console.error("Login error:", err);
       setErrors({ global: 'Network error, try again later' });
     } finally {
-      setIsSubmitting(false); // NOW THIS WORKS
+      setIsSubmitting(false);
     }
-  }
+  };
 
-  return(
-    <>
-      <div className="therapy-login-container">
-        <MdRadioButtonChecked className='logo' size={80} color='#3d1d77'/>
-        <h1>HeadSpace</h1>
-        <h5>Your trusted therapy partner</h5>
-        {errors.global && (
-          <div style={{color: 'red', marginBottom: '10px'}}>
-            {errors.global}
-          </div>
-        )}
-        
-        <form className="formName" onSubmit={handleSubmit}>
-          <div className="form-group">
+  return (
+    <div className="therapy-login-container">
+      <MdRadioButtonChecked className='logo' size={80} color='#3d1d77'/>
+      <h1>HeadSpace</h1>
+      <h5>Your trusted therapy partner</h5>
+      
+      {errors.global && (
+        <div style={{color: 'red', marginBottom: '10px'}}>
+          {errors.global}
+        </div>
+      )}
+      
+      <form className="formName" onSubmit={handleSubmit}>
+        <div className="form-group">
           <label htmlFor="email">Email</label>
           <input 
-            type="text" 
+            type="email" 
             id="email" 
-            name="email"  /* ADD THIS - IMPORTANT! */
+            name="email"
             value={form.email} 
             onChange={handleChange}
+            required
           />
-          </div>
-          
-          <div className="form-group">
-         <label htmlFor="phoneNumber">phoneNumber</label>
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="phoneNumber">Phone Number</label>
           <input 
             type="text" 
             id="phoneNumber" 
-            name="phoneNumber"  /* ADD THIS - IMPORTANT! */
+            name="phoneNumber"
             value={form.phoneNumber} 
             onChange={handleChange}
+            required
           />
-          
-          </div>
-          
-          <button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Logging in...' : 'Login'}
-          </button>    
-
-          <h5>Want to join our team? Call <strong>07xxxxxxxx</strong></h5>
-        </form>
+        </div>
         
-      </div>
-    </>
-  )
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Logging in...' : 'Login'}
+        </button>    
+
+        <h5>Want to join our team? Call <strong>0757438047</strong></h5>
+      </form>
+    </div>
+  );
 }
 
 export default TherapyLogin;

@@ -1,11 +1,12 @@
-import { useState, useEffect} from "react";
-import { useNavigate } from "react-router-dom"; // Fixed import
-import {format} from 'date-fns';
-import { MdPeople,MdDashboard, MdNote, MdLogout } from "react-icons/md";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { format } from 'date-fns';
+import { MdPeople, MdDashboard, MdNote, MdLogout } from "react-icons/md";
 import { FiCalendar } from "react-icons/fi";
-import {Api_Base} from './Api'
+import { Api_Base } from './Api';
 import './Therapydashboard.css';
 import { Link } from "react-router-dom";
+
 function UpcomingSessions() {
     const [sessions, setSessions] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -17,9 +18,14 @@ function UpcomingSessions() {
     }, []);
 
     const fetchUpcomingSessions = async () => {
+        const token = localStorage.getItem('access_token');
+        
         try {
-            const res = await fetch(`${Api_Base}upcoming-sessions/`, {
-                credentials: 'include'
+            const res = await fetch(`${Api_Base}/upcoming-sessions/`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
 
             if (!res.ok) {
@@ -27,9 +33,8 @@ function UpcomingSessions() {
             }
 
             const data = await res.json();
-            console.log('Upcoming sessions data:', data); // ✅ Debug log
+            console.log('Upcoming sessions data:', data);
             
-            // ✅ Add defensive checks
             setSessions(data.upcoming_sessions || []);
             setUserType(data.user_type);
             setLoading(false);
@@ -73,7 +78,6 @@ function UpcomingSessions() {
         return category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     };
 
-    // ✅ Show error state
     if (error) {
         return (
             <div className="error-state">
@@ -159,20 +163,20 @@ function UpcomingSessions() {
     );
 }
 
-function Cards({ title, numbers, description}) {
-    return(
+function Cards({ title, numbers, description }) {
+    return (
         <div className="cards">
             <h6>{title}</h6>
             <h1>{numbers}</h1>
             <p>{description}</p>
         </div>
-    )
+    );
 }
 
-    function TherapyDashboard() {
-    const [user, setUser] = useState(null)
+function TherapyDashboard() {
+    const navigate = useNavigate();
+    const [user, setUser] = useState(null);
     const now = new Date();
-    
 
     const [stats, setStats] = useState({
         todaysSessions: 0,
@@ -181,51 +185,80 @@ function Cards({ title, numbers, description}) {
     });
 
     useEffect(() => {
-        fetch(`${Api_Base}dashboard/`,{
+        const token = localStorage.getItem('access_token');
+        
+        if (!token) {
+            navigate('/TherapyLogin');
+            return;
+        }
+
+        fetch(`${Api_Base}/dashboard/`, {
             method: "GET",
-            credentials: "include",
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
         })
-        .then(res =>{
-            if(!res.ok) throw new Error("Network response was not ok")
-            return res.json()
+        .then(res => {
+            if (!res.ok) {
+                if (res.status === 401) {
+                    localStorage.clear();
+                    navigate('/TherapyLogin');
+                }
+                throw new Error("Network response was not ok");
+            }
+            return res.json();
         })
-        .then(data =>{
+        .then(data => {
             setUser(data);
             console.log("Dashboard data:", data);
-            // Changed from data.stats to data.stat (singular)
-            if(data.stat){
+            if (data.stat) {
                 setStats(data.stat);
             }
         })
-        .catch(err => console.log(err))
-    }, []); 
+        .catch(err => {
+            console.error("Dashboard error:", err);
+            navigate('/TherapyLogin');
+        });
+    }, [navigate]); 
 
-    if(!user) return <p>loading ....</p>
+    const handleLogout = () => {
+        localStorage.clear();
+        navigate('/TherapyLogin');
+    };
+
+    if (!user) return <p>Loading...</p>;
     
-    return(
-        <>
+    return (
         <div className="container">
             <aside className='therapyaside'>
                 <h2>Therapy Dashboard</h2>
                 <ul>
-                   
-                   <li><Link to="/therapysessions" className="aside-link">
-                       <p><MdDashboard size={20} />Dashboard</p>
-                     </Link> </li>                 
-                   <li><Link to="/therapymessages" className="aside-link">
-                       <p><MdPeople size={20} />Patients</p>
-                     </Link></li>
-                   
-                   <li>
-                    <Link to="/ThSessions" className="aside-link">
-                       <p><FiCalendar size={20} />My Sessions</p>
-                     </Link>
-                   </li>
-                  
-                   <li><MdNote size={20}/><Link to="/notes">Notes</Link></li>
+                    <li>
+                        <Link to="/therapysessions" className="aside-link">
+                            <p><MdDashboard size={20} />Dashboard</p>
+                        </Link>
+                    </li>                 
+                    <li>
+                        <Link to="/therapymessages" className="aside-link">
+                            <p><MdPeople size={20} />Patients</p>
+                        </Link>
+                    </li>
+                    <li>
+                        <Link to="/ThSessions" className="aside-link">
+                            <p><FiCalendar size={20} />My Sessions</p>
+                        </Link>
+                    </li>
+                    <li>
+                        <MdNote size={20}/>
+                        <Link to="/notes">Notes</Link>
+                    </li>
                     <br/>
                     <br/>
-                    <li><MdLogout size={20}/><Link to="#">Logout</Link></li>  
+                    <li onClick={handleLogout} style={{cursor: 'pointer'}}>
+                        <MdLogout size={20}/>
+                        <span>Logout</span>
+                    </li>  
                 </ul>
             </aside>
             <main>
@@ -250,17 +283,13 @@ function Cards({ title, numbers, description}) {
                     />
                 </div>
 
-                
-                    <div>
-                        <h2>Upcoming Sessions</h2>
-                        <UpcomingSessions />
-
-                    </div>
-                  
-                
+                <div>
+                    <h2>Upcoming Sessions</h2>
+                    <UpcomingSessions />
+                </div>
             </main>
         </div>
-        </>
-    )
+    );
 }
+
 export default TherapyDashboard;

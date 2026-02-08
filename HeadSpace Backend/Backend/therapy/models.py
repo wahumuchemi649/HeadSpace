@@ -1,11 +1,12 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 class therapists(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)  # Add this
     firstName = models.CharField(max_length=255,default='xxxx')
     lastName=models.CharField(max_length=255, default='xxxx')
     phoneNumber=models.IntegerField(null=True)
-    email=models.EmailField(max_length=255,default='xxxx@gmai.com')
     description=models.CharField(max_length=400,default="A certified Therapist")
     profile_pic=models.ImageField(upload_to="therapists/")
 
@@ -85,14 +86,14 @@ class therapists(models.Model):
             specialties.append(self.specialty_3)
         return specialties
 
-class patients(models.Model):
+'''class patients(models.Model):
     firstName=models.CharField(max_length=255,default='xxxx')
     lastName=models.CharField(max_length=255,default='xxxx')
     phoneNumber=models.IntegerField(null=False)
     email=models.EmailField(max_length=255,default='xxxx@gmail.com')
 
     def __str__(self):
-        return f"{self.email} {self.phoneNumber}"
+        return f"{self.email} {self.phoneNumber}"'''
     
 
 # chat/models.py or consultation/models.py

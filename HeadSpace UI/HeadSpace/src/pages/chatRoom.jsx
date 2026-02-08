@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./Chat.css";
-import {Api_Base} from './Api'
-import {WS_BASE } from './Api';
+import { Api_Base } from './Api';
+import { WS_BASE } from './Api';
 
 export default function Messages() {
   const { sessionId } = useParams();
@@ -14,41 +14,77 @@ export default function Messages() {
   const [lastSaved, setLastSaved] = useState(null);
   const ws = useRef(null);
   const saveTimeoutRef = useRef(null);
+
   /* ---------------------------
-     Load initial messages
+     Check session access
   ---------------------------- */
-  // In chatRoom.jsx, add this check at the top
-
-useEffect(() => {
-  if (!sessionId) return;
-
-  // Check if session is accessible
-  fetch(` ${Api_Base}chat/${sessionId}/check-access/`, {
-    credentials: "include",
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (!data.can_access) {
-        alert(data.message || "This session is not accessible.");
-        navigate('/my-sessions');
-      }
-    })
-    .catch(console.error);
-}, [sessionId, navigate]);
-
   useEffect(() => {
     if (!sessionId) return;
 
-    fetch(`${Api_Base}chat/${sessionId}/messages/`, {
-      credentials: "include",
+    const token = localStorage.getItem('access_token');
+    
+    if (!token) {
+      navigate('/Login');
+      return;
+    }
+
+    // Check if session is accessible
+    fetch(`${Api_Base}/chat/${sessionId}/check-access/`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
     })
       .then((res) => {
+        if (res.status === 401) {
+          localStorage.clear();
+          navigate('/Login');
+          throw new Error('Unauthorized');
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (!data.can_access) {
+          alert(data.message || "This session is not accessible.");
+          navigate('/MySessions');
+        }
+      })
+      .catch((err) => {
+        console.error("Access check error:", err);
+        if (err.message === 'Unauthorized') {
+          navigate('/Login');
+        }
+      });
+  }, [sessionId, navigate]);
+
+  /* ---------------------------
+     Load initial messages
+  ---------------------------- */
+  useEffect(() => {
+    if (!sessionId) return;
+
+    const token = localStorage.getItem('access_token');
+
+    fetch(`${Api_Base}/chat/${sessionId}/messages/`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then((res) => {
+        if (res.status === 401) {
+          localStorage.clear();
+          navigate('/Login');
+          throw new Error('Unauthorized');
+        }
         if (!res.ok) throw new Error("Failed to load messages");
         return res.json();
       })
       .then((data) => setMessages(data.messages || []))
-      .catch(console.error);
-  }, [sessionId]);
+      .catch((err) => {
+        console.error("Load messages error:", err);
+      });
+  }, [sessionId, navigate]);
 
   /* ---------------------------
      Load notes
@@ -56,10 +92,20 @@ useEffect(() => {
   useEffect(() => {
     if (!sessionId) return;
 
-    fetch(`${Api_Base}chat/${sessionId}/notes/`, {
-      credentials: "include",
+    const token = localStorage.getItem('access_token');
+
+    fetch(`${Api_Base}/chat/${sessionId}/notes/`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
     })
       .then((res) => {
+        if (res.status === 401) {
+          localStorage.clear();
+          navigate('/Login');
+          throw new Error('Unauthorized');
+        }
         if (!res.ok) throw new Error("Failed to load notes");
         return res.json();
       })
@@ -67,22 +113,32 @@ useEffect(() => {
         setNotes(data.content || "");
         setLastSaved(data.updated_at ? new Date(data.updated_at) : null);
       })
-      .catch(console.error);
-  }, [sessionId]);
+      .catch((err) => {
+        console.error("Load notes error:", err);
+      });
+  }, [sessionId, navigate]);
 
   /* ---------------------------
      Auto-save notes (debounced)
   ---------------------------- */
   const saveNotes = (content) => {
     setIsSaving(true);
+    const token = localStorage.getItem('access_token');
 
-    fetch(`${Api_Base}chat/${sessionId}/notes/save/`, {
+    fetch(`${Api_Base}/chat/${sessionId}/notes/save/`, {
       method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({ content }),
     })
       .then((res) => {
+        if (res.status === 401) {
+          localStorage.clear();
+          navigate('/Login');
+          throw new Error('Unauthorized');
+        }
         if (!res.ok) throw new Error("Failed to save notes");
         return res.json();
       })
@@ -113,12 +169,18 @@ useEffect(() => {
 
   /* ---------------------------
      WebSocket connection - only for RECEIVING messages
+     Note: WebSocket authentication might need special handling
   ---------------------------- */
   useEffect(() => {
     if (!sessionId) return;
 
+    const token = localStorage.getItem('access_token');
+    
     console.log("Connecting to WebSocket...");
-    ws.current = new WebSocket(`${WS_BASE}ws/chat/${sessionId}/`);
+    
+    // Include token in WebSocket URL as query parameter
+    // Your backend needs to handle this token validation
+    ws.current = new WebSocket(`${WS_BASE}/ws/chat/${sessionId}/?token=${token}`);
 
     ws.current.onopen = () => {
       console.log("✅ WebSocket connected");
@@ -156,14 +218,22 @@ useEffect(() => {
     if (!newMessage.trim()) return;
 
     console.log("Sending message:", newMessage);
+    const token = localStorage.getItem('access_token');
 
-    fetch(`${Api_Base}chat/${sessionId}/send/`, {
+    fetch(`${Api_Base}/chat/${sessionId}/send/`, {
       method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({ message: newMessage }),
     })
       .then((res) => {
+        if (res.status === 401) {
+          localStorage.clear();
+          navigate('/Login');
+          throw new Error('Unauthorized');
+        }
         if (!res.ok) throw new Error("Failed to send message");
         console.log("✅ Message sent successfully");
         setNewMessage("");
@@ -171,6 +241,9 @@ useEffect(() => {
       })
       .catch((err) => {
         console.error("❌ Send failed:", err);
+        if (err.message === 'Unauthorized') {
+          navigate('/Login');
+        }
       });
   };
 
@@ -210,7 +283,7 @@ useEffect(() => {
         </div>
       </div>
 
-       {/* Notepad Section */}
+      {/* Notepad Section */}
       <div className="notepad-section">
         <div className="notepad-header">
           <h3>Personal Notes</h3>

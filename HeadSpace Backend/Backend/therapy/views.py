@@ -1,135 +1,152 @@
 import json
-
 from django.http import JsonResponse
-from rest_framework.decorators import api_view
-
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.models import User
 from patients.models import patient
 from chat.models import Messages
 from consultation.models import Sessions
-from .models import therapists
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import authenticate, login
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from django.contrib.auth.models import User
-from .models import TherapistAvailability
-from datetime import datetime, timedelta,time
-
-
+from .models import therapists, TherapistAvailability
+from django.core.mail import EmailMessage
+from datetime import datetime, timedelta, time, date
+from django.conf import settings
+import logging
 
 
 def Therapists_lists(request):
-    Therapists = therapists.objects.all().values("id", "firstName", "lastName", "profile_pic", "description","specialty_1","specialty_2","specialty_3")
+    """Public endpoint - no auth needed"""
+    Therapists = therapists.objects.all().values(
+        "id", "firstName", "lastName", "profile_pic", 
+        "description", "specialty_1", "specialty_2", "specialty_3"
+    )
     return JsonResponse(list(Therapists), safe=False)
 
-@csrf_exempt
+
+@api_view(['POST'])
 def login_view(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        email = data.get('email')
-        phoneNumber = data.get('phoneNumber')
-        
-        try:
-            user = therapists.objects.get(email=email)
-            
-            if str(phoneNumber).strip() == str(user.phoneNumber).strip():
-                
-                request.session['therapist_id'] = user.id
-                request.session['therapist_email'] = user.email
-                request.session['user_type'] = 'therapist'
-                request.session.save()
-
-                print(f"✅ Login successful for {user.email}")
-                print(f"Session key: {request.session.session_key}")
-                print(f"Session data: {dict(request.session)}")
-                
-                # Just return JsonResponse - Django sets the cookie automatically
-                return JsonResponse({
-                    "message": f"Welcome Dr. {user.firstName}",
-                    "success": True
-                }, status=200)
-            else:
-                return JsonResponse({"message": "Invalid credentials"}, status=400)
-        except therapists.DoesNotExist:
-            return JsonResponse({"message": "User not found: Sign up"}, status=404)
-    
-    return JsonResponse({"message": "Method not allowed"}, status=405)
-
-    
-
-      
-def dashboard(request):
-    print(f"📍Dashboard accessed")
-    print(f"Session key from request: {request.session.session_key}")
-    print(f"Session data: {dict(request.session)}")
-    print(f"Cookies received: {request.COOKIES}")
-    print(f"Has sessionid cookie: {'sessionid' in request.COOKIES}")
-    email = request.session.get('therapist_email')
-    if not email:
-        return JsonResponse({"message": "Not logged in"}, status=401)
+    """Therapist login - returns JWT tokens"""
+    email = request.data.get('email')
+    phoneNumber = request.data.get('phoneNumber')
     
     try:
-        user = therapists.objects.get(email=email)
-        from datetime import date
-        todays_sessions=Sessions.objects.filter(therapist=user, day=date.today()).count()
-        total_clients=patient.objects.filter(sessions__therapist=user).distinct().count()
-        unread_messages=Messages.objects.filter(session__therapist=user, is_read=False, sender_type='patient').count()
-        return JsonResponse({
+        therapist = therapists.objects.get(user__email=email)  # Access via user relationship
         
-        "FirstName": user.firstName,
-        "LastName": user.lastName,
-        "Email": user.email,
-        "PhoneNumber": user.phoneNumber,
-        "Profile_pic": user.profile_pic.url if user.profile_pic else None,
-        "stat":{
-            "todaysSessions": todays_sessions,
-            "totalClients": total_clients,
-            "unreadMessages": unread_messages   
-        }
-        })
+        if str(phoneNumber).strip() == str(therapist.phoneNumber).strip():
+            # Generate JWT tokens
+            user = therapist.user
+            refresh = RefreshToken.for_user(user)
+            
+            # Add custom claims
+            refresh['email'] = user.email
+            refresh['user_type'] = 'therapist'
+            
+            print(f"✅ Login successful for {user.email}")
+            
+            return JsonResponse({
+                "message": f"Welcome Dr. {therapist.firstName}",
+                "success": True,
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+                "user": {
+                    "id": therapist.id,
+                    "email": user.email,
+                    "firstName": therapist.firstName,
+                    "lastName": therapist.lastName
+                }
+            }, status=200)
+        else:
+            return JsonResponse({"message": "Invalid credentials"}, status=400)
+            
     except therapists.DoesNotExist:
-        return JsonResponse({"message": "User not found"}, status=404)
+        return JsonResponse({"message": "User not found: Sign up"}, status=404)
+
 
 @api_view(['GET'])
-def therapist_sessions(request):
-    print(f"Session key from request: {request.session.session_key}")
-    print(f"Session data: {dict(request.session)}")
-    print(f"Cookies received: {request.COOKIES}")
-    print(f"Has sessionid cookie: {'sessionid' in request.COOKIES}")
-    print(f"Cookies received: {request.COOKIES}")
-    email = request.session.get('therapist_email')
-    if not email:
-        return JsonResponse({"message": "Not logged in"}, status=401)
-    #therapist_id = request.session.get('therapist_id')
-    if not email:
-        return JsonResponse({'error': 'Only therapists can view sessions'}, status=403)
-
+@permission_classes([IsAuthenticated])
+def dashboard(request):
+    """Therapist dashboard"""
+    user = request.user
+    
     try:
-        therapist = therapists.objects.get(email=email)
+        therapist = therapists.objects.get(user=user)
+        
+        # Stats
+        todays_sessions = Sessions.objects.filter(
+            therapist=therapist, 
+            day=date.today()
+        ).count()
+        
+        total_clients = patient.objects.filter(
+            sessions__therapist=therapist
+        ).distinct().count()
+        
+        unread_messages = Messages.objects.filter(
+            session__therapist=therapist,
+            is_read=False,
+            sender_type='patient'
+        ).count()
+        
+        return JsonResponse({
+            "FirstName": therapist.firstName,
+            "LastName": therapist.lastName,
+            "Email": user.email,
+            "PhoneNumber": therapist.phoneNumber,
+            "Profile_pic": therapist.profile_pic.url if therapist.profile_pic else None,
+            "stat": {
+                "todaysSessions": todays_sessions,
+                "totalClients": total_clients,
+                "unreadMessages": unread_messages   
+            }
+        })
+        
+    except therapists.DoesNotExist:
+        return JsonResponse({"message": "Therapist profile not found"}, status=404)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def therapist_sessions(request):
+    """Get therapist's sessions"""
+    user = request.user
+    
+    try:
+        therapist = therapists.objects.get(user=user)
+        
+        # Fetch sessions for this therapist
+        sessions = Sessions.objects.filter(therapist=therapist).select_related('patient')
+        
+        data = [
+            {
+                'id': s.id,
+                'patient_name': f"{s.patient.firstName} {s.patient.lastName}",
+                'day': s.day.isoformat(),
+                'time': s.time.isoformat(),
+                'reason_category': s.reason_category,
+                'reason': s.reason,
+                'status': s.status,
+                'duration_minutes': s.duration_minutes
+            }
+            for s in sessions
+        ]
+        
+        return JsonResponse(data, safe=False)
+        
     except therapists.DoesNotExist:
         return JsonResponse({'error': 'Therapist not found'}, status=404)
 
-    # Fetch sessions for this therapist
-    sessions = Sessions.objects.filter(therapist=therapist)
-    data = [
-        {
-            'id': s.id,
-            'patient_name': s.patient.name,
-            'time': s.time.isoformat(),
-            'reason': s.reason,
-        }
-        for s in sessions
-    ]
-    return JsonResponse(data, safe=False)
 
-
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_availability_grid(request):
     """Get therapist's weekly availability grid"""
-    therapist_id = request.session.get('therapist_id')
+    user = request.user
     
-    if not therapist_id:
-        return JsonResponse({'error': 'Not authenticated'}, status=401)
+    try:
+        therapist = therapists.objects.get(user=user)
+    except therapists.DoesNotExist:
+        return JsonResponse({'error': 'Therapist profile not found'}, status=404)
     
     # Define time slots (9am - 5pm)
     time_slots = [
@@ -137,10 +154,8 @@ def get_availability_grid(request):
         '13:00', '14:00', '15:00', '16:00', '17:00'
     ]
     
-    # Days of week
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     
-    # Build grid
     grid = []
     
     for time_str in time_slots:
@@ -151,31 +166,27 @@ def get_availability_grid(request):
         }
         
         for day_index in range(7):
-            # Get or check if slot exists
             slot = TherapistAvailability.objects.filter(
-                therapist_id=therapist_id,
+                therapist=therapist,
                 day_of_week=day_index,
                 time_slot=time_str
             ).first()
             
-            # Check if this slot is booked
+            # Check if booked
             is_booked = False
             if slot:
-                # Get next occurrence of this day
                 today = datetime.now().date()
                 days_ahead = day_index - today.weekday()
                 if days_ahead < 0:
                     days_ahead += 7
                 next_date = today + timedelta(days=days_ahead)
                 slot_time = datetime.strptime(time_str, "%H:%M").time()
-
                 
                 is_booked = Sessions.objects.filter(
-                    therapist_id=therapist_id,
+                    therapist=therapist,
                     day=next_date,
                     time=slot_time,
-                    is_active=True
-
+                    status__in=['scheduled', 'active']
                 ).exists()
             
             row['slots'].append({
@@ -194,35 +205,32 @@ def get_availability_grid(request):
     })
 
 
-@csrf_exempt
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def toggle_availability(request):
     """Toggle a specific time slot's availability"""
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
-    
-    therapist_id = request.session.get('therapist_id')
-    
-    if not therapist_id:
-        return JsonResponse({'error': 'Not authenticated'}, status=401)
+    user = request.user
     
     try:
-        data = json.loads(request.body)
-        day_of_week = data.get('day_of_week')
-        time_slot_str = data.get('time_slot')  # String like "09:00"
+        therapist = therapists.objects.get(user=user)
+    except therapists.DoesNotExist:
+        return JsonResponse({'error': 'Therapist profile not found'}, status=404)
+    
+    try:
+        day_of_week = request.data.get('day_of_week')
+        time_slot_str = request.data.get('time_slot')
         
-        # ✅ Convert string to time object
+        # Convert string to time object
         time_slot = datetime.strptime(time_slot_str, "%H:%M").time()
         
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Invalid JSON'}, status=400)
     except ValueError:
         return JsonResponse({'error': 'Invalid time format'}, status=400)
     
     # Get or create the slot
     slot, created = TherapistAvailability.objects.get_or_create(
-        therapist_id=therapist_id,
+        therapist=therapist,
         day_of_week=day_of_week,
-        time_slot=time_slot,  # Now it's a time object
+        time_slot=time_slot,
         defaults={'is_available': True}
     )
     
@@ -233,12 +241,11 @@ def toggle_availability(request):
         days_ahead += 7
     next_date = today + timedelta(days=days_ahead)
     
-    # ✅ Now both are time objects - comparison will work!
     is_booked = Sessions.objects.filter(
-        therapist_id=therapist_id,
+        therapist=therapist,
         day=next_date,
-        time=time_slot,  # time object
-        is_active=True
+        time=time_slot,
+        status__in=['scheduled', 'active']
     ).exists()
     
     if is_booked:
@@ -255,15 +262,17 @@ def toggle_availability(request):
     return JsonResponse({
         'success': True,
         'day_of_week': day_of_week,
-        'time_slot': time_slot_str,  # Return string for frontend
+        'time_slot': time_slot_str,
         'is_available': slot.is_available
     })
+
+
+@api_view(['GET'])
 def get_therapist_availability_for_patient(request, therapist_id):
     """
     Get a specific therapist's availability (for patients booking)
-    Same as therapist's own view, but read-only
+    Public endpoint - no auth required
     """
-    # Define time slots
     time_slots = [
         '09:00', '10:00', '11:00', '12:00',
         '13:00', '14:00', '15:00', '16:00', '17:00'
@@ -300,7 +309,7 @@ def get_therapist_availability_for_patient(request, therapist_id):
                     therapist_id=therapist_id,
                     day=next_date,
                     time=slot_time,
-                    is_active=True
+                    status__in=['scheduled', 'active']
                 ).exists()
             
             row['slots'].append({
@@ -318,3 +327,104 @@ def get_therapist_availability_for_patient(request, therapist_id):
         'days': days,
         'therapist_id': therapist_id
     })
+
+
+
+logger = logging.getLogger(__name__)
+
+@api_view(['POST'])
+def therapist_apply(request):
+    """
+    Handle therapist application submissions.
+    Sends application details via email with attachments.
+    """
+    try:
+        # Extract form data
+        first_name = request.data.get('first_name', '').strip()
+        last_name = request.data.get('last_name', '').strip()
+        email = request.data.get('email', '').strip()
+        phone = request.data.get('phone', '').strip()
+        specialties = request.data.getlist('specialties')
+        
+        # Validation
+        if not all([first_name, last_name, email, phone]):
+            return Response({
+                'success': False,
+                'error': 'All fields are required'
+            }, status=400)
+        
+        if len(specialties) != 3:
+            return Response({
+                'success': False,
+                'error': 'Please select exactly 3 specialties'
+            }, status=400)
+        
+        # Compose email
+        email_body = f"""
+New Therapist Application Received
+===================================
+
+APPLICANT INFORMATION:
+----------------------
+Name: {first_name} {last_name}
+Email: {email}
+Phone: {phone}
+
+SPECIALTIES:
+------------
+{chr(10).join(f"• {specialty}" for specialty in specialties)}
+
+ATTACHMENTS:
+------------
+Profile Picture: {"✓ Included" if request.FILES.get('profile_pic') else "✗ Not provided"}
+Documents: {len(request.FILES.getlist('documents'))} file(s) attached
+
+---
+This is an automated email from HeadSpace Therapist Application System.
+Please review the application and attachments, then contact the applicant.
+        """
+        
+        email_msg = EmailMessage(
+            subject=f'New Therapist Application - {first_name} {last_name}',
+            body=email_body,
+            from_email=settings.DEFAULT_FROM_EMAIL,  # Configure in settings.py
+            to=['chelsfavor@gmail.com'],
+            reply_to=[email]  # Allow easy reply to applicant
+        )
+        
+        # Attach profile picture
+        profile_pic = request.FILES.get('profile_pic')
+        if profile_pic:
+            email_msg.attach(
+                profile_pic.name,
+                profile_pic.read(),
+                profile_pic.content_type
+            )
+            logger.info(f"Profile pic attached: {profile_pic.name}")
+        
+        # Attach documents
+        documents = request.FILES.getlist('documents')
+        for doc in documents:
+            email_msg.attach(
+                doc.name,
+                doc.read(),
+                doc.content_type
+            )
+            logger.info(f"Document attached: {doc.name}")
+        
+        # Send email
+        email_msg.send(fail_silently=False)
+        
+        logger.info(f"Application submitted successfully: {email}")
+        
+        return Response({
+            'success': True,
+            'message': 'Application submitted successfully! We will contact you soon.'
+        }, status=200)
+        
+    except Exception as e:
+        logger.error(f"Therapist application error: {str(e)}", exc_info=True)
+        return Response({
+            'success': False,
+            'error': 'Failed to submit application. Please try again.'
+        }, status=500)

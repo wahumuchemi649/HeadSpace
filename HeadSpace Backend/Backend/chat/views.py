@@ -1,35 +1,51 @@
 import json
-from .models import Messages
+from .models import Messages, SessionNotes
 from consultation.models import Sessions
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.cache import never_cache
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from patients.models import patient
+from therapy.models import therapists
 
-@csrf_exempt
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def send_message(request, session_id):
     print("\n" + "="*60)
     print("SEND_MESSAGE DEBUG")
     print("="*60)
     
-    data = json.loads(request.body)
-    message_text = data.get('message')
-
-    user_type = request.session.get('user_type')
-    user_id = request.session.get('patient_id') if user_type == 'patient' else request.session.get('therapist_id')
-
-    if not user_id:
-        return JsonResponse({'error': 'Not authenticated'}, status=401)
-
-    session_obj = Sessions.objects.get(id=session_id)
-
+    user = request.user
+    message_text = request.data.get('message')
+    
+    # Determine user type and get profile
+    try:
+        user_patient = patient.objects.get(user=user)
+        user_type = 'patient'
+        user_id = user_patient.id
+    except patient.DoesNotExist:
+        try:
+            user_therapist = therapists.objects.get(user=user)
+            user_type = 'therapist'
+            user_id = user_therapist.id
+        except therapists.DoesNotExist:
+            return JsonResponse({'error': 'User profile not found'}, status=404)
+    
+    try:
+        session_obj = Sessions.objects.get(id=session_id)
+    except Sessions.DoesNotExist:
+        return JsonResponse({'error': 'Session not found'}, status=404)
+    
     # Security check
     if user_type == 'patient' and session_obj.patient.id != user_id:
         return JsonResponse({'error': 'Unauthorized'}, status=403)
     if user_type == 'therapist' and session_obj.therapist.id != user_id:
         return JsonResponse({'error': 'Unauthorized'}, status=403)
-
+    
     # Save message
     msg = Messages.objects.create(
         session=session_obj,
@@ -37,7 +53,7 @@ def send_message(request, session_id):
         sender_type=user_type,
         message_text=message_text
     )
-
+    
     # Broadcast to WebSocket
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
@@ -54,61 +70,54 @@ def send_message(request, session_id):
             }
         }
     )
-
+    
     return JsonResponse({'message': 'Message sent', 'id': msg.id})
 
 
-@csrf_exempt
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_messages(request, session_id):
     print("\n" + "="*60)
     print("GET_MESSAGES DEBUG")
     print("="*60)
-    print("REQUEST PATH:", request.path)
-    print("Cookies received:", request.COOKIES.keys())
-    print("Has sessionid cookie?", 'sessionid' in request.COOKIES)
     
-    if hasattr(request, 'session'):
-        print("Session key:", request.session.session_key)
-        print("Session items:", dict(request.session.items()))
+    user = request.user
     
-    print("="*60 + "\n")
+    # Determine user type
+    try:
+        user_patient = patient.objects.get(user=user)
+        user_type = 'patient'
+        user_id = user_patient.id
+    except patient.DoesNotExist:
+        try:
+            user_therapist = therapists.objects.get(user=user)
+            user_type = 'therapist'
+            user_id = user_therapist.id
+        except therapists.DoesNotExist:
+            return JsonResponse({'error': 'User profile not found'}, status=404)
     
-    if request.method != "GET":
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
-
-    user_type = request.session.get('user_type')
-    if not user_type:
-        return JsonResponse({'error': 'Not authenticated'}, status=401)
-
-    user_id = (
-        request.session.get('patient_id')
-        if user_type == 'patient'
-        else request.session.get('therapist_id')
-    )
-
     try:
         session_obj = Sessions.objects.get(id=session_id)
     except Sessions.DoesNotExist:
         return JsonResponse({'error': 'Session not found'}, status=404)
-
+    
     # Ownership check
     if user_type == 'patient' and session_obj.patient.id != user_id:
         return JsonResponse({'error': 'Unauthorized'}, status=403)
-
     if user_type == 'therapist' and session_obj.therapist.id != user_id:
         return JsonResponse({'error': 'Unauthorized'}, status=403)
-
-    # 🔹 Fetch messages
+    
+    # Fetch messages
     messages = Messages.objects.filter(
         session=session_obj
     ).order_by('created_at')
-
-    # 🔹 Mark unread messages as read (only those not sent by current user)
+    
+    # Mark unread messages as read
     Messages.objects.filter(
         session=session_obj,
         is_read=False
     ).exclude(sender_type=user_type).update(is_read=True)
-
+    
     data = [
         {
             'id': msg.id,
@@ -120,46 +129,47 @@ def get_messages(request, session_id):
         }
         for msg in messages
     ]
-
-    return JsonResponse({'messages': data})
-@never_cache
-@csrf_exempt
-def my_sessions(request):
     
+    return JsonResponse({'messages': data})
 
-    if request.method != "GET":
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
-    print("MY SESSIONS HIT", dict(request.session.items()))
 
-    user_type = request.session.get('user_type')
-    if not user_type:
-        return JsonResponse({'error': 'Not authenticated'}, status=401)
-
-    if user_type == 'patient':
-        user_id = request.session.get('patient_id')
-        sessions = Sessions.objects.filter(patient_id=user_id)
-    else:
-        user_id = request.session.get('therapist_id')
-        sessions = Sessions.objects.filter(therapist_id=user_id)
-
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def my_sessions(request):
+    user = request.user
+    
+    # Determine user type
+    try:
+        user_patient = patient.objects.get(user=user)
+        user_type = 'patient'
+        user_id = user_patient.id
+        sessions = Sessions.objects.filter(patient=user_patient)
+    except patient.DoesNotExist:
+        try:
+            user_therapist = therapists.objects.get(user=user)
+            user_type = 'therapist'
+            user_id = user_therapist.id
+            sessions = Sessions.objects.filter(therapist=user_therapist)
+        except therapists.DoesNotExist:
+            return JsonResponse({'error': 'User profile not found'}, status=404)
+    
     data = []
     for s in sessions:
         is_expired = s.is_expired()
         can_access = s.can_access_chat()
-
+        
         last_msg = (
             s.messages
             .only('message_text', 'created_at')
             .order_by('-created_at')
             .first()
         )
-
+        
         unread_count = s.messages.filter(
             is_read=False
         ).exclude(sender_type=user_type).count()
-
+        
         if is_expired and s.status != 'completed':
-            # Auto-update status to expired
             s.status = 'expired'
             s.save()
             display_message = "⚠️ Subscription expired - Please renew"
@@ -167,8 +177,7 @@ def my_sessions(request):
             display_message = "Session not yet started"
         else:
             display_message = last_msg.message_text if last_msg else "No messages yet"
-
-
+        
         data.append({
             "id": s.id,
             "other_party": (
@@ -178,39 +187,45 @@ def my_sessions(request):
             "last_message": display_message,
             "last_message_time": last_msg.created_at if last_msg else None,
             "unread_count": unread_count,
-            "is_expired": is_expired,  
-            "can_access": can_access,  
+            "is_expired": is_expired,
+            "can_access": can_access,
             "status": s.status,
         })
-
+    
     return JsonResponse(data, safe=False)
 
-@csrf_exempt
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def check_session_access(request, session_id):
     """Check if user can access this chat session"""
+    user = request.user
     
-    user_type = request.session.get('user_type')
-    if not user_type:
-        return JsonResponse({'error': 'Not authenticated', 'can_access': False}, status=401)
-    
-    user_id = (
-        request.session.get('patient_id')
-        if user_type == 'patient'
-        else request.session.get('therapist_id')
-    )
+    # Determine user type
+    try:
+        user_patient = patient.objects.get(user=user)
+        user_type = 'patient'
+        user_id = user_patient.id
+    except patient.DoesNotExist:
+        try:
+            user_therapist = therapists.objects.get(user=user)
+            user_type = 'therapist'
+            user_id = user_therapist.id
+        except therapists.DoesNotExist:
+            return JsonResponse({'error': 'User profile not found', 'can_access': False}, status=404)
     
     try:
         session_obj = Sessions.objects.get(id=session_id)
     except Sessions.DoesNotExist:
         return JsonResponse({'error': 'Session not found', 'can_access': False}, status=404)
     
-    # Security check - is this their session?
+    # Security check
     if user_type == 'patient' and session_obj.patient.id != user_id:
         return JsonResponse({'error': 'Unauthorized', 'can_access': False}, status=403)
     if user_type == 'therapist' and session_obj.therapist.id != user_id:
         return JsonResponse({'error': 'Unauthorized', 'can_access': False}, status=403)
     
-    # ✅ Check if session can be accessed
+    # Check if session can be accessed
     if session_obj.is_expired():
         return JsonResponse({
             'can_access': False,
@@ -230,24 +245,25 @@ def check_session_access(request, session_id):
         'message': 'Session is active'
     })
 
-# Add these to your views.py
 
-@csrf_exempt
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_notes(request, session_id):
     """Get notes for a specific session"""
+    user = request.user
     
-    if request.method != "GET":
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
-    
-    user_type = request.session.get('user_type')
-    if not user_type:
-        return JsonResponse({'error': 'Not authenticated'}, status=401)
-    
-    user_id = (
-        request.session.get('patient_id')
-        if user_type == 'patient'
-        else request.session.get('therapist_id')
-    )
+    # Determine user type
+    try:
+        user_patient = patient.objects.get(user=user)
+        user_type = 'patient'
+        user_id = user_patient.id
+    except patient.DoesNotExist:
+        try:
+            user_therapist = therapists.objects.get(user=user)
+            user_type = 'therapist'
+            user_id = user_therapist.id
+        except therapists.DoesNotExist:
+            return JsonResponse({'error': 'User profile not found'}, status=404)
     
     try:
         session_obj = Sessions.objects.get(id=session_id)
@@ -274,22 +290,24 @@ def get_notes(request, session_id):
     })
 
 
-@csrf_exempt
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def save_notes(request, session_id):
     """Save notes for a specific session"""
+    user = request.user
     
-    if request.method != "POST":
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
-    
-    user_type = request.session.get('user_type')
-    if not user_type:
-        return JsonResponse({'error': 'Not authenticated'}, status=401)
-    
-    user_id = (
-        request.session.get('patient_id')
-        if user_type == 'patient'
-        else request.session.get('therapist_id')
-    )
+    # Determine user type
+    try:
+        user_patient = patient.objects.get(user=user)
+        user_type = 'patient'
+        user_id = user_patient.id
+    except patient.DoesNotExist:
+        try:
+            user_therapist = therapists.objects.get(user=user)
+            user_type = 'therapist'
+            user_id = user_therapist.id
+        except therapists.DoesNotExist:
+            return JsonResponse({'error': 'User profile not found'}, status=404)
     
     try:
         session_obj = Sessions.objects.get(id=session_id)
@@ -302,8 +320,7 @@ def save_notes(request, session_id):
     if user_type == 'therapist' and session_obj.therapist.id != user_id:
         return JsonResponse({'error': 'Unauthorized'}, status=403)
     
-    data = json.loads(request.body)
-    content = data.get('content', '')
+    content = request.data.get('content', '')
     
     # Update or create notes
     notes, created = SessionNotes.objects.update_or_create(

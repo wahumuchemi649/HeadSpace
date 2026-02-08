@@ -6,15 +6,63 @@ from rest_framework import status
 from .models import patient
 from .serializers import useSerializers
 from django.contrib.auth.hashers import check_password
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
+from django.contrib.auth.models import User
+from django.db import transaction
 
 @api_view(['POST'])
 def register_patient(request):
-    serializers = useSerializers(data=request.data)
-    if serializers.is_valid():
-        serializers.save()
-        return Response({'message': "User registered successfully"}, status=status.HTTP_201_CREATED)
-    return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    data = request.data
+    
+    email = data.get('email')
+    password = data.get('password')
+    firstName = data.get('firstName')
+    lastName = data.get('lastName')
+    phoneNumber = data.get('phoneNumber')
+    
+    # Validate
+    if not all([email, password, firstName, lastName, phoneNumber]):
+        return Response({
+            'message': 'All fields are required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Check if user already exists
+    if User.objects.filter(username=email).exists():
+        return Response({
+            'message': 'User with this email already exists. Please login.'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        # Use transaction to ensure both User and patient are created together
+        with transaction.atomic():
+            # Create Django User
+            user = User.objects.create_user(
+                username=email,
+                email=email,
+                password=password
+            )
+            
+            # Create patient profile
+            patient_profile = patient.objects.create(
+                user=user,
+                firstName=firstName,
+                lastName=lastName,
+                phoneNumber=phoneNumber
+            )
+        
+        return Response({
+            'message': "User registered successfully"
+        }, status=status.HTTP_201_CREATED)
+        
+    except Exception as e:
+        # transaction.atomic() will automatically rollback if error occurs
+        print(f"Registration error: {e}")
+        return Response({
+            'message': f'Registration failed: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
 
 @api_view(['GET'])
 def list_patients(request):
@@ -25,60 +73,35 @@ def list_patients(request):
 
 @api_view(['POST'])
 def login(request):
+    from django.contrib.auth import authenticate
+    
     email = request.data.get('email')
     password = request.data.get('password')
-
-    print(f"Login attempt - Email: {email}")  # Debug
-    print(f"Password received: {password}") # remove in production
-    if not email or not password:
-        return Response(
-            {"message": "Email and password are required"}, 
-            status=status.HTTP_400_BAD_REQUEST
-        )
     
-    try:
-        user = patient.objects.get(email=email)
-        print(f"User found: {user.email}") 
-        # Debug
-        password_match = check_password(password, user.password)
-        print(f"Password match: {password_match}")  # Debug
-        if check_password(password, user.password):
-            print(f"password match:{user.password}")
-            # Fixed: removed extra space in 'user_id '
-
-            
-
-            request.session['patient_id'] = user.id
-            request.session['patient_email'] = user.email
-            request.session['user_type'] = 'patient'
-            request.session.save()
-            print(f"✅ Login successful for {user.email}")
-            print(f"Session key: {request.session.session_key}")
-            print(f"Session data: {dict(request.session)}")
-            
-            return Response({
-                "message": 'Login Successful',
-                "user": {
-                    "id": user.id,
-                    "email": user.email,
-                }
-            }, status=status.HTTP_200_OK)
-        else:
-            return Response(
-        {"message": "Invalid credentials"},
-        status=status.HTTP_401_UNAUTHORIZED
-    )
-
-    except patient.DoesNotExist:
-        return Response(
-            {"message": "Invalid credentials"}, 
-            status=status.HTTP_401_UNAUTHORIZED
-        )
-    except Exception as e:
-        return Response(
-            {"message": "An error occurred during login"}, 
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+    # Authenticate with Django User
+    user = authenticate(username=email, password=password)
+    
+    if user:
+        # Get patient profile
+        patient_profile = patient.objects.get(user=user)
+        
+        # Generate tokens
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            "message": 'Login Successful',
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+            "user": {
+                "id": patient_profile.id,
+                "email": user.email,
+                "firstName": patient_profile.firstName,
+                "lastName": patient_profile.lastName,
+            }
+        }, status=status.HTTP_200_OK)
+    
+    return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)    
+        
 @api_view(['GET'])
 def check_session(request):
     """Check if the patient has an active session"""
@@ -100,25 +123,18 @@ def check_session(request):
             "message": "No active session"
         }, status=status.HTTP_401_UNAUTHORIZED)
     
-@api_view(['GET'])
-def patientDashboard(request):
-    print(f"📍Dashboard accessed")
-    print(f"Session key from request: {request.session.session_key}")
-    print(f"Session data: {dict(request.session)}")
-    print(f"Cookies received: {request.COOKIES}")
-    print(f"Has sessionid cookie: {'sessionid' in request.COOKIES}")
-    
-    email = request.session.get('patient_email')
-    if not email:
-        return JsonResponse({"message":" Not Loggedin"}, status=401)
-    try:
-        user=patient.objects.get(email=email)
-        return JsonResponse({
-            "firstName":user.firstName,
-            "lastName":user.lastName,
-            "email":user.email
-        })
-    except patient.DoesNotExist:
-        return JsonResponse({"Message": "User not found"})
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def patientDashboard(request):
+    print(f"📍Dashboard accessed by: {request.user}")
+    # request.user is now the Django User
+    patient_profile = patient.objects.get(user=request.user)
     
+    return JsonResponse({
+        "firstName": patient_profile.firstName,
+        "lastName": patient_profile.lastName,
+        "email": request.user.email
+    })
+   
