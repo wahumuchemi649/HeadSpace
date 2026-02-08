@@ -9,7 +9,7 @@ import  Booking from './pages/session'
 import Chat from './pages/chatRoom'
 import TherapyLogin from './pages/TherapyLogin'
 import TherapyDashboard from './pages/Therapydashboard'
-import TherapistApply from './pages/therapist-apply.jsx'
+import TherapistApply from './pages/Therapist-apply'
 import { AuthProvider } from './contexts/AuthContext';
 import SessionsList from './components/SessionsList';
 import Crisis from './pages/Crisis'
