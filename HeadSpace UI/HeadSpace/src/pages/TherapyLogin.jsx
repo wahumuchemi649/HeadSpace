@@ -35,7 +35,7 @@ function TherapyLogin() {
     setIsSubmitting(true);
     
     try {
-      const res = await fetch(`${Api_Base}login/`, {  // Note the /login/ path
+      const res = await fetch(`${Api_Base}login/`, {  
         method: 'POST',
         headers: { 'Content-Type': "application/json" },
         body: JSON.stringify(form)
