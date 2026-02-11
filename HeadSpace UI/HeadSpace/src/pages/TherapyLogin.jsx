@@ -35,15 +35,15 @@ function TherapyLogin() {
     setIsSubmitting(true);
     
     try {
-      const res = await fetch(`${Api_Base}/login/`, {  // Note the /login/ path
+      const res = await fetch(`${Api_Base}login/`, {  // Note the /login/ path
         method: 'POST',
         headers: { 'Content-Type': "application/json" },
         body: JSON.stringify(form)
       });
 
-      console.log("Response status:", res.status);  
+      /*console.log("Response status:", res.status); */
       const data = await res.json();
-      console.log("Login response:", data);
+      /*console.log("Login response:", data);*/
       
       if (res.ok && data.access) {
         // Store JWT tokens
@@ -51,7 +51,7 @@ function TherapyLogin() {
         localStorage.setItem("refresh_token", data.refresh);
         localStorage.setItem("user", JSON.stringify(data.user));
         
-        console.log("✅ Tokens stored, redirecting...");
+        /*console.log("✅ Tokens stored, redirecting...");*/
         navigate('/TherapyDashboard');
       } else {
         setErrors({ global: data.message || "Invalid Credentials" });
@@ -105,7 +105,7 @@ function TherapyLogin() {
           {isSubmitting ? 'Logging in...' : 'Login'}
         </button>    
 
-        <h5>Want to join our team? Call <strong>0757438047</strong></h5>
+        <h5>Want to join our team? Call <strong>0117543225</strong></h5>
       </form>
     </div>
   );

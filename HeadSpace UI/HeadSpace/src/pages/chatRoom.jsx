@@ -12,8 +12,21 @@ export default function Messages() {
   const [notes, setNotes] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
+  const [showAllHistory, setShowAllHistory] = useState(false);
   const ws = useRef(null);
   const saveTimeoutRef = useRef(null);
+  const messagesEndRef = useRef(null);
+
+  /* ---------------------------
+     Scroll to bottom when messages change
+  ---------------------------- */
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   /* ---------------------------
      Check session access
@@ -28,8 +41,7 @@ export default function Messages() {
       return;
     }
 
-    // Check if session is accessible
-    fetch(`${Api_Base}/chat/${sessionId}/check-access/`, {
+    fetch(`${Api_Base}chat/${sessionId}/check-access/`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -58,14 +70,15 @@ export default function Messages() {
   }, [sessionId, navigate]);
 
   /* ---------------------------
-     Load initial messages
+     Load messages
   ---------------------------- */
   useEffect(() => {
     if (!sessionId) return;
 
     const token = localStorage.getItem('access_token');
+    const url = `${Api_Base}chat/${sessionId}/messages/?show_all=${showAllHistory}`;
 
-    fetch(`${Api_Base}/chat/${sessionId}/messages/`, {
+    fetch(url, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -80,11 +93,14 @@ export default function Messages() {
         if (!res.ok) throw new Error("Failed to load messages");
         return res.json();
       })
-      .then((data) => setMessages(data.messages || []))
+      .then((data) => {
+        /*console.log('Messages loaded:', data);*/
+        setMessages(data.messages || []);
+      })
       .catch((err) => {
         console.error("Load messages error:", err);
       });
-  }, [sessionId, navigate]);
+  }, [sessionId, showAllHistory, navigate]);
 
   /* ---------------------------
      Load notes
@@ -94,7 +110,7 @@ export default function Messages() {
 
     const token = localStorage.getItem('access_token');
 
-    fetch(`${Api_Base}/chat/${sessionId}/notes/`, {
+    fetch(`${Api_Base}chat/${sessionId}/notes/`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -125,7 +141,7 @@ export default function Messages() {
     setIsSaving(true);
     const token = localStorage.getItem('access_token');
 
-    fetch(`${Api_Base}/chat/${sessionId}/notes/save/`, {
+    fetch(`${Api_Base}chat/${sessionId}/notes/save/`, {
       method: "POST",
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -156,30 +172,24 @@ export default function Messages() {
     const newContent = e.target.value;
     setNotes(newContent);
 
-    // Clear existing timeout
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
 
-    // Set new timeout for auto-save (1 second after typing stops)
     saveTimeoutRef.current = setTimeout(() => {
       saveNotes(newContent);
     }, 1000);
   };
 
   /* ---------------------------
-     WebSocket connection - only for RECEIVING messages
-     Note: WebSocket authentication might need special handling
+     WebSocket connection
   ---------------------------- */
   useEffect(() => {
     if (!sessionId) return;
 
     const token = localStorage.getItem('access_token');
     
-    console.log("Connecting to WebSocket...");
-    
-    // Include token in WebSocket URL as query parameter
-    // Your backend needs to handle this token validation
+    /*console.log("Connecting to WebSocket...");*/
     ws.current = new WebSocket(`${WS_BASE}/ws/chat/${sessionId}/?token=${token}`);
 
     ws.current.onopen = () => {
@@ -187,12 +197,18 @@ export default function Messages() {
     };
 
     ws.current.onmessage = (event) => {
-      console.log("📨 Received:", event.data);
+      /*console.log("📨 Received:", event.data);*/
       const data = JSON.parse(event.data);
       
       if (data.type === 'new_message') {
-        console.log("Adding message to state:", data.message);
-        setMessages((prev) => [...prev, data.message]);
+       /* console.log("Adding message to state:", data.message);*/
+        setMessages((prev) => [
+          ...prev, 
+          {
+            type: 'message',
+            ...data.message
+          }
+        ]);
       }
     };
 
@@ -217,10 +233,10 @@ export default function Messages() {
   const sendMessage = () => {
     if (!newMessage.trim()) return;
 
-    console.log("Sending message:", newMessage);
+    /*console.log("Sending message:", newMessage);*/
     const token = localStorage.getItem('access_token');
 
-    fetch(`${Api_Base}/chat/${sessionId}/send/`, {
+    fetch(`${Api_Base}chat/${sessionId}/send/`, {
       method: "POST",
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -235,9 +251,8 @@ export default function Messages() {
           throw new Error('Unauthorized');
         }
         if (!res.ok) throw new Error("Failed to send message");
-        console.log("✅ Message sent successfully");
+        /*console.log("✅ Message sent successfully");*/
         setNewMessage("");
-        // Message will appear via WebSocket broadcast
       })
       .catch((err) => {
         console.error("❌ Send failed:", err);
@@ -247,29 +262,69 @@ export default function Messages() {
       });
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'short', 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
   return (
     <div className="messages-container">
       <div className="chat-window">
+        {/* Chat Header with Toggle */}
+        <div className="chat-header">
+          <h3>Therapy Session Chat</h3>
+          <label className="history-toggle">
+            <input
+              type="checkbox"
+              checked={showAllHistory}
+              onChange={(e) => setShowAllHistory(e.target.checked)}
+            />
+            <span>Show full conversation history</span>
+          </label>
+        </div>
+
         <div className="chat-messages">
           {messages.length === 0 && (
             <p className="empty-state">No messages yet</p>
           )}
 
-          {messages.map((m) => (
-            <div
-              key={m.id}
-              className={`message ${
-                m.sender_type === "patient"
-                  ? "message-sent"
-                  : "message-received"
-              }`}
-            >
-              <p>{m.message}</p>
-              <span className="message-time">
-                {new Date(m.created_at).toLocaleTimeString()}
-              </span>
-            </div>
-          ))}
+          {messages.map((item, index) => {
+            // Render session markers
+            if (item.type === 'session_marker') {
+              return (
+                <div key={`marker-${item.session_id}`} className="session-separator">
+                  <span className="session-date">
+                    📅 Session on {formatDate(item.session_date)} at {item.session_time}
+                  </span>
+                </div>
+              );
+            }
+
+            // Render regular messages
+            return (
+              <div
+                key={`msg-${item.id}`}
+                className={`message ${
+                  item.sender_type === "patient"
+                    ? "message-sent"
+                    : "message-received"
+                }`}
+              >
+                <p>{item.message}</p>
+                <span className="message-time">
+                  {new Date(item.created_at).toLocaleTimeString()}
+                </span>
+              </div>
+            );
+          })}
+          
+          {/* Scroll anchor */}
+          <div ref={messagesEndRef} />
         </div>
 
         <div className="chat-input">

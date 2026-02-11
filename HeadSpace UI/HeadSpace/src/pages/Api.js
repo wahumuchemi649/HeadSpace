@@ -1,2 +1,7 @@
-export const Api_Base = import.meta.env.VITE_API_BASE || 'https://headspace-r8nf.onrender.com';
-export const WS_BASE = Api_Base.replace(/^http(s)?/, "ws$1");
+const getBaseUrl = () => {
+  const url = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+  return url.replace(/\/$/, '');
+};
+
+export const Api_Base = getBaseUrl() + '/';
+export const WS_BASE = getBaseUrl().replace(/^http(s)?/, 'ws$1');

@@ -21,7 +21,7 @@ function UpcomingSessions() {
         const token = localStorage.getItem('access_token');
         
         try {
-            const res = await fetch(`${Api_Base}/upcoming-sessions/`, {
+            const res = await fetch(`${Api_Base}upcoming-sessions/`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -33,7 +33,7 @@ function UpcomingSessions() {
             }
 
             const data = await res.json();
-            console.log('Upcoming sessions data:', data);
+            /*console.log('Upcoming sessions data:', data);*/
             
             setSessions(data.upcoming_sessions || []);
             setUserType(data.user_type);
@@ -192,7 +192,7 @@ function TherapyDashboard() {
             return;
         }
 
-        fetch(`${Api_Base}/dashboard/`, {
+        fetch(`${Api_Base}dashboard/`, {
             method: "GET",
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -249,16 +249,10 @@ function TherapyDashboard() {
                             <p><FiCalendar size={20} />My Sessions</p>
                         </Link>
                     </li>
-                    <li>
-                        <MdNote size={20}/>
-                        <Link to="/notes">Notes</Link>
-                    </li>
+
                     <br/>
                     <br/>
-                    <li onClick={handleLogout} style={{cursor: 'pointer'}}>
-                        <MdLogout size={20}/>
-                        <span>Logout</span>
-                    </li>  
+                    
                 </ul>
             </aside>
             <main>

@@ -72,16 +72,12 @@ def send_message(request, session_id):
     )
     
     return JsonResponse({'message': 'Message sent', 'id': msg.id})
-
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_messages(request, session_id):
-    print("\n" + "="*60)
-    print("GET_MESSAGES DEBUG")
-    print("="*60)
-    
+    """Get messages - with option to show all sessions or just this one"""
     user = request.user
+    show_all = request.GET.get('show_all', 'false').lower() == 'true'
     
     # Determine user type
     try:
@@ -97,41 +93,84 @@ def get_messages(request, session_id):
             return JsonResponse({'error': 'User profile not found'}, status=404)
     
     try:
-        session_obj = Sessions.objects.get(id=session_id)
+        current_session = Sessions.objects.get(id=session_id)
     except Sessions.DoesNotExist:
         return JsonResponse({'error': 'Session not found'}, status=404)
     
     # Ownership check
-    if user_type == 'patient' and session_obj.patient.id != user_id:
+    if user_type == 'patient' and current_session.patient.id != user_id:
         return JsonResponse({'error': 'Unauthorized'}, status=403)
-    if user_type == 'therapist' and session_obj.therapist.id != user_id:
+    if user_type == 'therapist' and current_session.therapist.id != user_id:
         return JsonResponse({'error': 'Unauthorized'}, status=403)
     
-    # Fetch messages
-    messages = Messages.objects.filter(
-        session=session_obj
-    ).order_by('created_at')
+    # Get messages
+    if show_all:
+        # Get all sessions between this patient and therapist
+        all_sessions = Sessions.objects.filter(
+            patient=current_session.patient,
+            therapist=current_session.therapist
+        ).order_by('day', 'time').values_list('id', flat=True)
+        
+        messages = Messages.objects.filter(
+            session_id__in=all_sessions
+        ).select_related('session').order_by('created_at')
+        
+        # Build response with session grouping info
+        data = []
+        last_session_id = None
+        
+        for msg in messages:
+            # Add session marker if this is a new session
+            if msg.session_id != last_session_id:
+                data.append({
+                    'type': 'session_marker',
+                    'session_id': msg.session_id,
+                    'session_date': msg.session.day.isoformat(),
+                    'session_time': msg.session.time.strftime('%H:%M'),
+                })
+                last_session_id = msg.session_id
+            
+            data.append({
+                'type': 'message',
+                'id': msg.id,
+                'sender_type': msg.sender_type,
+                'sender_id': msg.sender_id,
+                'message': msg.message_text,
+                'created_at': msg.created_at.isoformat(),
+                'is_read': msg.is_read,
+                'session_id': msg.session_id,
+            })
+    else:
+        # Get only messages from current session
+        messages = Messages.objects.filter(
+            session_id=session_id
+        ).order_by('created_at')
+        
+        data = [
+            {
+                'type': 'message',
+                'id': msg.id,
+                'sender_type': msg.sender_type,
+                'sender_id': msg.sender_id,
+                'message': msg.message_text,
+                'created_at': msg.created_at.isoformat(),
+                'is_read': msg.is_read,
+                'session_id': session_id,
+            }
+            for msg in messages
+        ]
     
-    # Mark unread messages as read
+    # Mark unread messages as read (only in current session)
     Messages.objects.filter(
-        session=session_obj,
+        session_id=session_id,
         is_read=False
     ).exclude(sender_type=user_type).update(is_read=True)
     
-    data = [
-        {
-            'id': msg.id,
-            'sender_type': msg.sender_type,
-            'sender_id': msg.sender_id,
-            'message': msg.message_text,
-            'created_at': msg.created_at,
-            'is_read': msg.is_read,
-        }
-        for msg in messages
-    ]
-    
-    return JsonResponse({'messages': data})
-
+    return JsonResponse({
+        'messages': data,
+        'current_session_id': session_id,
+        'show_all': show_all
+    })
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -169,10 +208,12 @@ def my_sessions(request):
             is_read=False
         ).exclude(sender_type=user_type).count()
         
-        if is_expired and s.status != 'completed':
-            s.status = 'expired'
-            s.save()
-            display_message = "⚠️ Subscription expired - Please renew"
+        # ✅ FIX: Update status to 'completed' if expired
+        if is_expired:
+            if s.status != 'completed':
+                s.status = 'completed'
+                s.save()
+            display_message = "⚠️ Session completed"
         elif not can_access:
             display_message = "Session not yet started"
         else:
@@ -185,16 +226,17 @@ def my_sessions(request):
                 else s.patient.firstName
             ),
             "last_message": display_message,
-            "last_message_time": last_msg.created_at if last_msg else None,
+            "last_message_time": last_msg.created_at.isoformat() if last_msg else None,
             "unread_count": unread_count,
             "is_expired": is_expired,
             "can_access": can_access,
-            "status": s.status,
+            "status": s.status,  # ✅ Now returns 'completed' for expired sessions
+            "session_date": s.day.isoformat(),
+            "session_time": s.time.strftime('%H:%M'),
+            "created_at": s.created_at.isoformat(),
         })
     
     return JsonResponse(data, safe=False)
-
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def check_session_access(request, session_id):

@@ -9,9 +9,12 @@ import  Booking from './pages/session'
 import Chat from './pages/chatRoom'
 import TherapyLogin from './pages/TherapyLogin'
 import TherapyDashboard from './pages/Therapydashboard'
+import CommunityDetail from './pages/CommunityDetail';
 import TherapistApply from './pages/Therapist-apply'
 import { AuthProvider } from './contexts/AuthContext';
 import SessionsList from './components/SessionsList';
+import CreateCommunity from './pages/CreateCommunity';
+import CommunityList from './pages/CommunityList';
 import Crisis from './pages/Crisis'
 import MySessions from './pages/Mysessions'
 import Messages from './pages/chatRoom'
@@ -40,6 +43,9 @@ function App() {
       <Route path='/Crisis' element={<Crisis/>} />
       <Route path="/Dashboard" element={<Dashboard />} />        
       <Route path="/Therapydashboard" element={<TherapyDashboard />} />
+      <Route path="/CreateCommunity" element={< CreateCommunity/>}/>
+      <Route path="/CommunityList" element={< CommunityList/>}/>
+      <Route path="/community/:communityId" element={<CommunityDetail />} />
       <Route path="/ThSessions" element={< ThSessions/>}/>
       <Route path="/MySessions" element={< MySessions/>}/>
       <Route path="/chatRoom/:sessionId" element={<Messages />} />

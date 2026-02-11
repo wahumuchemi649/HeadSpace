@@ -10,7 +10,8 @@ urlpatterns = [
     path('',include('therapy.urls')),
     path('api/',include('patients.urls')),
     path('',include('consultation.urls')),
-    path('chat/',include('chat.urls'))
+    path('chat/',include('chat.urls')),
+    path('api/', include('community.urls')),
     
 ]
 

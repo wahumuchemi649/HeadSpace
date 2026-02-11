@@ -3,11 +3,9 @@ import  Avatar from './Avatar.jsx'
 import { useState,useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { AiFillHeart } from 'react-icons/ai'
-import { AiFillMessage,AiFillDashboard } from 'react-icons/ai'
+import { AiFillDashboard } from 'react-icons/ai'
 import {FiTrendingUp,FiCalendar} from "react-icons/fi";
 import { FiHome,FiPhone } from 'react-icons/fi';
-import { Ban } from "lucide-react";
-import MoodChart from './Mood.jsx';
 import {Api_Base} from './Api.js'
 import { useNavigate } from 'react-router-dom';
 
@@ -52,7 +50,7 @@ function UpcomingSessions() {
             }
 
             const data = await res.json();
-            console.log('Upcoming sessions data:', data);
+            /*console.log('Upcoming sessions data:', data);*/
 
             setSessions(data.upcoming_sessions || []);
             setUserType(data.user_type);
@@ -271,10 +269,10 @@ if (!user) {
      <Link to="/MySessions" className="aside-link">
     <p><FiCalendar size={40} color='#555' />My Sessions</p>
   </Link>
-    <p><FiTrendingUp size={40} color='#555'/>Progress</p>
-    <p><FiHome size={40} color='#555'/>Community</p>
-    <p><AiFillMessage size={40} color='#555' />Messages</p>
-
+  <Link to='/CommunityList' className='aside-link'>
+  <p><FiHome size={40} color='#555'/>Community</p>
+  </Link>
+  <p><FiTrendingUp size={40} color='#555'/>Progress</p>
   </aside>
   <main>
     <div className='nameCard'>
@@ -287,12 +285,11 @@ if (!user) {
         <h1>Book A Session</h1>
         <p>Schedule your next appointment</p>
       </Link>
-      <div className='bodycard'>
+      <Link to='/CommunityList' className='bodycard'>
         <FiHome size={40} color='#61dafb' />
         <h1>Join a chat</h1>
         <p>Connect with support group</p>
-        <h2><Ban size={20} color='#3d1d77' />Service not available at the moment</h2>
-      </div>
+      </Link>
       <Link to='/Crisis' className='bodycard'>
         <FiPhone size={40} color='red'/>
         <h1>Emergency</h1>
@@ -300,7 +297,7 @@ if (!user) {
       </Link>
     </div>
     <div className='upcomings'>
-      <h3>Upcoming Activities</h3> 
+      
       <p><FiCalendar size={60} color='#3d1d77' /></p>
       <UpcomingSessions />
     </div>

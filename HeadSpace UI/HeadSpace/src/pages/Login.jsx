@@ -21,7 +21,7 @@ function Login() {
 
     async function handleSubmit(e) {
         e.preventDefault()
-        console.log("Attempting to log in with form data:", form)
+       /* console.log("Attempting to log in with form data:", form)*/
         setSubmitting(true)
         setErrors({})
         
@@ -32,7 +32,7 @@ function Login() {
         }
         
         try {
-            const res = await fetch(`${Api_Base}/api/login/`, {
+            const res = await fetch(`${Api_Base}api/login/`, {
                 method: 'POST',
                 headers: { 'Content-Type': "application/json" },
                 body: JSON.stringify(form)
@@ -46,7 +46,7 @@ function Login() {
                 localStorage.setItem("refresh_token", data.refresh);
                 localStorage.setItem("user", JSON.stringify(data.user));
                 
-                console.log('✅ Login successful, tokens stored');
+                /*console.log('✅ Login successful, tokens stored');*/
                 navigate('/Dashboard')
             } else {
                 setErrors({ global: data.message || 'Invalid Credentials' })
