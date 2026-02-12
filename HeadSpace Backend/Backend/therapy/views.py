@@ -17,12 +17,23 @@ import logging
 
 def Therapists_lists(request):
     """Public endpoint - no auth needed"""
-    Therapists = therapists.objects.all().values(
-        "id", "firstName", "lastName", "profile_pic", 
-        "description", "specialty_1", "specialty_2", "specialty_3"
-    )
-    return JsonResponse(list(Therapists), safe=False)
-
+    Therapists = therapists.objects.all()
+    
+    data = [
+        {
+            "id": t.id,
+            "firstName": t.firstName,
+            "lastName": t.lastName,
+            "profile_pic": t.profile_pic.url if t.profile_pic else None,  # ← Get full URL
+            "description": t.description,
+            "specialty_1": t.specialty_1,
+            "specialty_2": t.specialty_2,
+            "specialty_3": t.specialty_3,
+        }
+        for t in Therapists
+    ]
+    
+    return JsonResponse(data, safe=False)
 
 @api_view(['POST'])
 def login_view(request):
