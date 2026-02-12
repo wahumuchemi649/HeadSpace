@@ -39,7 +39,7 @@ function Cards({ onselect, therapists, selectedTherapist }) {
                         padding: "10px"
                     }}
                 >
-                    <img src={`${Api_Base}media/${t.profile_pic}`} alt={t.profile_pic} />
+                    <img src={`${Api_Base}/media/${t.profile_pic}`} alt={t.profile_pic} />
                     <h3>{t.firstName} {t.lastName}</h3>
                     <p>{t.specialty_1}</p>
                     <p>{t.specialty_2}</p>
@@ -59,7 +59,7 @@ function TherapistAvailabilityGrid({ therapistId, onSlotSelect, selectedSlot }) 
         if (!therapistId) return;
 
         // No auth needed - this is a public endpoint
-        fetch(`${Api_Base}therapist/${therapistId}/availability/`)
+        fetch(`${Api_Base}/therapist/${therapistId}/availability/`)
             .then((res) => {
                 if (!res.ok) throw new Error("Failed to load availability");
                 return res.json();
@@ -191,7 +191,7 @@ function Booking() {
     useEffect(() => {
         async function fetchTherapists() {
             try {
-                const res = await fetch(`${Api_Base}therapists/`)
+                const res = await fetch(`${Api_Base}/therapists/`)
                 const data = await res.json()
                 setAllTherapists(data)
                 setFilteredTherapists(data)
@@ -259,7 +259,7 @@ function Booking() {
         console.log('📤 Sending booking data:', booking_data)
 
         try {
-            const res = await fetch(`${Api_Base}session/`, {
+            const res = await fetch(`${Api_Base}/session/`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

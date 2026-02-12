@@ -83,7 +83,7 @@ function SignIn() {
     const server = Api_Base;
     setSubmitting(true);
     try {
-      const res = await fetch(`${server}api/patient/`, {
+      const res = await fetch(`${server}/api/patient/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form)

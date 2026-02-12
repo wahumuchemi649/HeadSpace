@@ -21,7 +21,7 @@ function UpcomingSessions() {
         const token = localStorage.getItem('access_token');
         
         try {
-            const res = await fetch(`${Api_Base}upcoming-sessions/`, {
+            const res = await fetch(`${Api_Base}/upcoming-sessions/`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -192,7 +192,7 @@ function TherapyDashboard() {
             return;
         }
 
-        fetch(`${Api_Base}dashboard/`, {
+        fetch(`${Api_Base}/dashboard/`, {
             method: "GET",
             headers: {
                 'Authorization': `Bearer ${token}`,

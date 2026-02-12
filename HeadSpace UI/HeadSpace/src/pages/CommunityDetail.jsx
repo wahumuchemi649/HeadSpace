@@ -26,7 +26,7 @@ function CommunityDetail() {
         }
 
         try {
-            const res = await fetch(`${Api_Base}api/communities/${communityId}/`, {
+            const res = await fetch(`${Api_Base}/api/communities/${communityId}/`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -58,7 +58,7 @@ function CommunityDetail() {
         const token = localStorage.getItem('access_token');
 
         try {
-            const res = await fetch(`${Api_Base}api/communities/${communityId}/join/`, {
+            const res = await fetch(`${Api_Base}/api/communities/${communityId}/join/`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -88,7 +88,7 @@ function CommunityDetail() {
         const token = localStorage.getItem('access_token');
 
         try {
-            const res = await fetch(`${Api_Base}api/communities/${communityId}/leave/`, {
+            const res = await fetch(`${Api_Base}/api/communities/${communityId}/leave/`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -121,7 +121,7 @@ function CommunityDetail() {
         const token = localStorage.getItem('access_token');
 
         try {
-            const res = await fetch(`${Api_Base}api/communities/${communityId}/posts/create/`, {
+            const res = await fetch(`${Api_Base}/api/communities/${communityId}/posts/create/`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

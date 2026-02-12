@@ -21,7 +21,7 @@ export default function MySessions() {
       return;
     }
 
-    fetch(`${Api_Base}chat/my_sessions/`, {
+    fetch(`${Api_Base}/chat/my_sessions/`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'

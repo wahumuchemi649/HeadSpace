@@ -40,7 +40,7 @@ function CreateCommunity() {
 
         try {
             // Check for similar communities
-            const res = await fetch(`${Api_Base}api/communities/check-similar/`, {
+            const res = await fetch(`${Api_Base}/api/communities/check-similar/`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -83,7 +83,7 @@ function CreateCommunity() {
                 formData.append('icon', form.icon);
             }
 
-            const res = await fetch(`${Api_Base}api/communities/create/`, {
+            const res = await fetch(`${Api_Base}/api/communities/create/`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -111,7 +111,7 @@ function CreateCommunity() {
         const token = localStorage.getItem('access_token');
 
         try {
-            const res = await fetch(`${Api_Base}api/communities/${communityId}/join/`, {
+            const res = await fetch(`${Api_Base}/api/communities/${communityId}/join/`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

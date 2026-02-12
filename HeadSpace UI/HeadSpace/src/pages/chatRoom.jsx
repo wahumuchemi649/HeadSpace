@@ -76,7 +76,7 @@ export default function Messages() {
     if (!sessionId) return;
 
     const token = localStorage.getItem('access_token');
-    const url = `${Api_Base}chat/${sessionId}/messages/?show_all=${showAllHistory}`;
+    const url = `${Api_Base}/chat/${sessionId}/messages/?show_all=${showAllHistory}`;
 
     fetch(url, {
       headers: {
@@ -110,7 +110,7 @@ export default function Messages() {
 
     const token = localStorage.getItem('access_token');
 
-    fetch(`${Api_Base}chat/${sessionId}/notes/`, {
+    fetch(`${Api_Base}/chat/${sessionId}/notes/`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -141,7 +141,7 @@ export default function Messages() {
     setIsSaving(true);
     const token = localStorage.getItem('access_token');
 
-    fetch(`${Api_Base}chat/${sessionId}/notes/save/`, {
+    fetch(`${Api_Base}/chat/${sessionId}/notes/save/`, {
       method: "POST",
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -236,7 +236,7 @@ export default function Messages() {
     /*console.log("Sending message:", newMessage);*/
     const token = localStorage.getItem('access_token');
 
-    fetch(`${Api_Base}chat/${sessionId}/send/`, {
+    fetch(`${Api_Base}/chat/${sessionId}/send/`, {
       method: "POST",
       headers: {
         'Authorization': `Bearer ${token}`,

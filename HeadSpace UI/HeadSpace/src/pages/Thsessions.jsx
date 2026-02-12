@@ -24,7 +24,7 @@ function TherapistAvailability() {
       return;
     }
 
-    fetch(`${Api_Base}therapist/availability/`, {
+    fetch(`${Api_Base}/therapist/availability/`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -57,7 +57,7 @@ function TherapistAvailability() {
 
     const token = localStorage.getItem('access_token');
 
-    fetch(`${Api_Base}therapist/availability/toggle/`, {
+    fetch(`${Api_Base}/therapist/availability/toggle/`, {
       method: "POST",
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -191,7 +191,7 @@ export default function ThSessions() {
       return;
     }
 
-    fetch(`${Api_Base}chat/my_sessions/`, {
+    fetch(`${Api_Base}/chat/my_sessions/`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'

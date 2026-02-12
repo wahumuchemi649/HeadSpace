@@ -3,5 +3,5 @@ const getBaseUrl = () => {
   return url.replace(/\/$/, '');
 };
 
-export const Api_Base = getBaseUrl() + '/';
+export const Api_Base = getBaseUrl();
 export const WS_BASE = getBaseUrl().replace(/^http(s)?/, 'ws$1');

@@ -29,7 +29,7 @@ function UpcomingSessions() {
         }
 
         try {
-            const res = await fetch(`${Api_Base}upcoming-sessions/`, {
+            const res = await fetch(`${Api_Base}/upcoming-sessions/`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -181,7 +181,7 @@ function Dashboard(){
     }
     
     try {
-      const res = await fetch(`${Api_Base}api/patientDashboard/`, {  // ← Add parentheses
+      const res = await fetch(`${Api_Base}/api/patientDashboard/`, {  // ← Add parentheses
         method: "GET",
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -222,7 +222,7 @@ const refreshAccessToken = async () => {
   if (!refreshToken) return false;
   
   try {
-    const res = await fetch(`${Api_Base}api/token/refresh/`, {  // ← Add parentheses
+    const res = await fetch(`${Api_Base}/api/token/refresh/`, {  // ← Add parentheses
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh: refreshToken })

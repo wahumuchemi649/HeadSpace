@@ -38,7 +38,7 @@ function CommunityList() {
         }
 
         try {
-            let url = `${Api_Base}api/communities/?topic=${selectedTopic}`;
+            let url = `${Api_Base}/api/communities/?topic=${selectedTopic}`;
             if (searchQuery) {
                 url += `&search=${searchQuery}`;
             }
@@ -69,7 +69,7 @@ function CommunityList() {
         const token = localStorage.getItem('access_token');
 
         try {
-            const res = await fetch(`${Api_Base}api/communities/${communityId}/join/`, {
+            const res = await fetch(`${Api_Base}/api/communities/${communityId}/join/`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
