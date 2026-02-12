@@ -39,7 +39,7 @@ function Cards({ onselect, therapists, selectedTherapist }) {
                         padding: "10px"
                     }}
                 >
-                    <img src={`${Api_Base}/media/${t.profile_pic}`} alt={t.profile_pic} />
+                    <img src={t.profile_pic} alt={t.profile_pic} />
                     <h3>{t.firstName} {t.lastName}</h3>
                     <p>{t.specialty_1}</p>
                     <p>{t.specialty_2}</p>
