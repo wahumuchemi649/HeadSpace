@@ -177,7 +177,7 @@ function TherapyDashboard() {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const now = new Date();
-
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [stats, setStats] = useState({
         todaysSessions: 0,
         totalClients: 0,
@@ -226,12 +226,33 @@ function TherapyDashboard() {
         localStorage.clear();
         navigate('/TherapyLogin');
     };
+    const toggleSidebar = () => {
+        setIsSidebarOpen(!isSidebarOpen);
+    };
+
+    const closeSidebar = () => {
+        setIsSidebarOpen(false);
+    };
 
     if (!user) return <p>Loading...</p>;
     
     return (
         <div className="container">
-            <aside className='therapyaside'>
+             {/* Hamburger Button */}
+            <button 
+                className={`hamburger ${isSidebarOpen ? 'active' : ''}`}
+                onClick={toggleSidebar}
+                aria-label="Toggle menu"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            {/* Overlay */}
+            {isSidebarOpen && (
+                <div className="sidebar-overlay" onClick={closeSidebar}></div>
+            )}
+            <aside className={`therapyaside ${isSidebarOpen ? 'open' : ''}`}>
                 <h2>Therapy Dashboard</h2>
                 <ul>
                     <li>
