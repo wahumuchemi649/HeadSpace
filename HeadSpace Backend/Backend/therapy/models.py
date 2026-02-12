@@ -6,7 +6,7 @@ class therapists(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)  # Add this
     firstName = models.CharField(max_length=255,default='xxxx')
     lastName=models.CharField(max_length=255, default='xxxx')
-    phoneNumber=models.IntegerField(null=True)
+    phoneNumber=models.CharField(max_length=15, null=True, blank=True)
     description=models.CharField(max_length=400,default="A certified Therapist")
     profile_pic=models.ImageField(upload_to="therapists/")
 

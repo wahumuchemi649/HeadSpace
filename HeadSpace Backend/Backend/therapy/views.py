@@ -42,9 +42,13 @@ def login_view(request):
     phoneNumber = request.data.get('phoneNumber')
     
     try:
-        therapist = therapists.objects.get(user__email=email)  # Access via user relationship
+        therapist = therapists.objects.get(user__email=email)
         
-        if str(phoneNumber).strip() == str(therapist.phoneNumber).strip():
+        # Normalize phone numbers (remove spaces, dashes, etc.)
+        input_phone = str(phoneNumber).strip().replace(' ', '').replace('-', '')
+        stored_phone = str(therapist.phoneNumber).strip().replace(' ', '').replace('-', '')
+        
+        if input_phone == stored_phone:
             # Generate JWT tokens
             user = therapist.user
             refresh = RefreshToken.for_user(user)
@@ -72,8 +76,7 @@ def login_view(request):
             
     except therapists.DoesNotExist:
         return JsonResponse({"message": "User not found: Sign up"}, status=404)
-
-
+    
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def dashboard(request):
