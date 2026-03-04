@@ -10,7 +10,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from patients.models import patient
 from therapy.models import therapists
-
+from django.http import HttpResponse
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -376,3 +376,5 @@ def save_notes(request, session_id):
         'message': 'Notes saved successfully',
         'updated_at': notes.updated_at.isoformat()
     })
+def health_check(request):
+    return HttpResponse("OK", status=200)    
