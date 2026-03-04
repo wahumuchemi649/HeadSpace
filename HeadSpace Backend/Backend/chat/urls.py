@@ -9,4 +9,5 @@ urlpatterns = [
     path('<int:session_id>/check-access/', views.check_session_access, name='check_access'),
     path('<int:session_id>/notes/', views.get_notes),
     path('<int:session_id>/notes/save/', views.save_notes),
+    path("health/", views.health_check),
 ]
