@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from super_admin.models import Organization
 # Create your models here.
 class therapists(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)  # Add this
@@ -8,8 +8,10 @@ class therapists(models.Model):
     lastName=models.CharField(max_length=255, default='xxxx')
     phoneNumber=models.CharField(max_length=15, null=True, blank=True)
     description=models.CharField(max_length=400,default="A certified Therapist")
+    organization = models.ForeignKey(Organization,on_delete=models.CASCADE,related_name='therapists',null=True,blank=True
+    )
     profile_pic=models.ImageField(upload_to="therapists/")
-
+    
     # ✅ Add specialties (max 3)
     specialty_1 = models.CharField(max_length=50, blank=True, null=True, choices=[
         ('academic_pressure', 'Academic Pressure'),
@@ -73,6 +75,20 @@ class therapists(models.Model):
         ('trauma_ptsd', 'Trauma / PTSD'),
         ('other', 'Other'),
     ])
+    session_rate_45 = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=2500.00,
+        help_text="Rate for 45-minute sessions (KES)"
+    )
+    session_rate_60 = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=3000.00,
+        help_text="Rate for 60-minute sessions (KES)"
+    )
+
+    is_active = models.BooleanField(default=True) 
     def __str__(self):
         return f"{self.firstName}     {self.lastName}       {self.description}"
     def get_specialties(self):
@@ -85,15 +101,6 @@ class therapists(models.Model):
         if self.specialty_3:
             specialties.append(self.specialty_3)
         return specialties
-
-'''class patients(models.Model):
-    firstName=models.CharField(max_length=255,default='xxxx')
-    lastName=models.CharField(max_length=255,default='xxxx')
-    phoneNumber=models.IntegerField(null=False)
-    email=models.EmailField(max_length=255,default='xxxx@gmail.com')
-
-    def __str__(self):
-        return f"{self.email} {self.phoneNumber}"'''
     
 
 # chat/models.py or consultation/models.py

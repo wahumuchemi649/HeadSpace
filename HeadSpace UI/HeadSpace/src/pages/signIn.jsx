@@ -3,6 +3,7 @@ import {Api_Base} from "./Api";
 import  './SignIn.css'
 import { Link, useNavigate } from "react-router-dom";
 import { MdRadioButtonChecked } from "react-icons/md";
+import { FaEyeSlash, FaEye } from "react-icons/fa";
 
 function SignIn() {
   const Navigate = useNavigate();
@@ -16,6 +17,7 @@ function SignIn() {
   const [errors, setErrors] = useState({});
   const [touch, setTouch] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   function handleSignin(e) {
     const { name, value, type, checked, files } = e.target;
@@ -184,11 +186,18 @@ function SignIn() {
       <label>
         Password
         <input
+          type={showPassword ? "text" : "password"}
           name="password"
           value={form.password}
           onChange={handleSignin}
           onBlur={handleBlur}
         />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+        >
+          {showPassword ? <FaEyeSlash color='#fff'/> : <FaEye color="color='#3d1d77'" />}
+        </button>
       </label>
       {touch.password && errors.password && (
         <div role="alert">{errors.password}</div>

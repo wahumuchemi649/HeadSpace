@@ -8,4 +8,5 @@ urlpatterns=[
     path('login/',views.login,name='login_patients'),
     path('patientDashboard/',views.patientDashboard, name='patientDashboard'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('available-therapists/', views.get_available_therapists, name='available_therapists'),
 ]

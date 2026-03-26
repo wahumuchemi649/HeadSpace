@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from 'date-fns';
-import { MdPeople, MdDashboard, MdNote, MdLogout } from "react-icons/md";
+import { MdPeople, MdDashboard, MdNote, MdLogout,MdSettings } from "react-icons/md";
 import { FiCalendar } from "react-icons/fi";
 import { Api_Base } from './Api';
 import './Therapydashboard.css';
@@ -268,6 +268,11 @@ function TherapyDashboard() {
                     <li>
                         <Link to="/ThSessions" className="aside-link">
                             <p><FiCalendar size={20} />My Sessions</p>
+                        </Link>
+                    </li>
+                      <li>
+                        <Link to="/TherapistPricing" className="aside-link">
+                            <p><MdSettings size={20} />Pricing Settings</p>
                         </Link>
                     </li>
 

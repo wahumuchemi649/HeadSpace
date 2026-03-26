@@ -12,7 +12,8 @@ urlpatterns = [
     path('',include('consultation.urls')),
     path('chat/',include('chat.urls')),
     path('api/', include('community.urls')),
-    
+    path('super-admin/', include('super_admin.urls')),
+    path('org-admin/', include('org_admin.urls')),
 ]
 
 if settings.DEBUG:  # only serve media in development

@@ -82,12 +82,14 @@ function Landing(){
               <AiFillHeart size={30} color="#61dafbaa"/>
               <h2>HeadSpace</h2>
               <p>Connecting patients with qualified therapists for better mental health outcomes</p>
+              <Link to='/SuperAdminLogin'> Super Admin</Link>
             </div>
             <div className="thefooters">
               <h2>Quick Links</h2>
               <Link to='/Login'> Client Log In</Link>
               <Link to='/SignIn'> Sign In</Link>
               <Link to='/TherapyLogin'> Therapist Login</Link> 
+              <Link to='/OrgAdminLogin'>Admin</Link> 
               <Link to='/'> Privacy Policy</Link>
               <Link to='/'> Terms Of Policy</Link>         
             </div>

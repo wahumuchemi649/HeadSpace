@@ -13,7 +13,11 @@ class Messages(models.Model):
         return f"{self.sender_type} ({self.sender_id}): {self.message_text[:30]}"
 
 class SessionNotes(models.Model):
-    session = models.OneToOneField(Sessions, on_delete=models.CASCADE, related_name='notes')
+    session = models.ForeignKey(
+        Sessions, 
+        on_delete=models.CASCADE, 
+        related_name='notes'
+    )
     user_id = models.IntegerField()  # Who wrote the notes
     user_type = models.CharField(max_length=20)  # 'patient' or 'therapist'
     content = models.TextField(blank=True, default='')

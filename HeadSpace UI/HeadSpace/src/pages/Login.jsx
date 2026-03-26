@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Api_Base } from './Api'
 import { Link, useNavigate } from 'react-router-dom'
 import { MdRadioButtonChecked } from "react-icons/md";
+import { FaEyeSlash, FaEye } from "react-icons/fa";
 
 function Login() {
     const navigate = useNavigate()
@@ -13,6 +14,7 @@ function Login() {
     })
     const [errors, setErrors] = useState({})
     const [submitting, setSubmitting] = useState(false)
+    const [showPassword, setShowPassword] = useState(false)
 
     function handleChange(e) {
         const { name, value } = e.target
@@ -71,7 +73,13 @@ function Login() {
                     <input type='email' name="email" value={form.email} onChange={handleChange} required />
                 </label>
                 <label>Password
-                    <input type='password' name="password" value={form.password} onChange={handleChange} />
+                    <input type={showPassword ? "text" : "password"} name="password" value={form.password} onChange={handleChange} />
+                    <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                     >
+                     {showPassword ? <FaEyeSlash color='#fff'/> : <FaEye color="color='#3d1d77'" />}
+                      </button>
                 </label>
                 
                 {submitting && (

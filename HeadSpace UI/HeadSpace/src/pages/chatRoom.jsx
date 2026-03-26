@@ -41,7 +41,7 @@ export default function Messages() {
       return;
     }
 
-    fetch(`${Api_Base}chat/${sessionId}/check-access/`, {
+    fetch(`${Api_Base}/chat/${sessionId}/check-access/`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -195,22 +195,32 @@ export default function Messages() {
     ws.current.onopen = () => {
       console.log("✅ WebSocket connected");
     };
+// Inside your WebSocket useEffect
+ws.current.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  
+  if (data.type === 'chat_message') {
+    setMessages((prev) => {
+      // 🚨 CRITICAL: Check if message ID already exists to prevent double-rendering
+      // data.message contains the 'id' from your Django model
+      const isDuplicate = prev.some(msg => msg.id === data.message.id);
+      if (isDuplicate) return prev;
 
-    ws.current.onmessage = (event) => {
-      /*console.log("📨 Received:", event.data);*/
-      const data = JSON.parse(event.data);
-      
-      if (data.type === 'new_message') {
-       /* console.log("Adding message to state:", data.message);*/
-        setMessages((prev) => [
-          ...prev, 
-          {
-            type: 'message',
-            ...data.message
-          }
-        ]);
-      }
-    };
+      return [
+        ...prev, 
+        {
+          type: 'message',
+          id: data.message.id,
+          sender_type: data.message.sender_type,
+          sender_id: data.message.sender_id,
+          message: data.message.message, // This maps to 'message_text' from your backend
+          created_at: data.message.created_at,
+          is_read: data.message.is_read
+        }
+      ];
+    });
+  }
+};
 
     ws.current.onerror = (error) => {
       console.error("❌ WebSocket error:", error);
@@ -230,37 +240,46 @@ export default function Messages() {
   /* ---------------------------
      Send message via HTTP POST
   ---------------------------- */
-  const sendMessage = () => {
-    if (!newMessage.trim()) return;
+const sendMessage = () => {
+  if (!newMessage.trim()) return;
 
-    /*console.log("Sending message:", newMessage);*/
-    const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem('access_token');
+  const tempMessage = newMessage; 
+  setNewMessage(""); 
 
-    fetch(`${Api_Base}/chat/${sessionId}/send/`, {
-      method: "POST",
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ message: newMessage }),
+  fetch(`${Api_Base}/chat/${sessionId}/send/`, {
+    method: "POST",
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ message: tempMessage }),
+  })
+    .then((res) => {
+      if (!res.ok) {
+        setNewMessage(tempMessage); // Put text back if it failed
+        return;
+      }
+      return res.json();
     })
-      .then((res) => {
-        if (res.status === 401) {
-          localStorage.clear();
-          navigate('/Login');
-          throw new Error('Unauthorized');
-        }
-        if (!res.ok) throw new Error("Failed to send message");
-        /*console.log("✅ Message sent successfully");*/
-        setNewMessage("");
-      })
-      .catch((err) => {
-        console.error("❌ Send failed:", err);
-        if (err.message === 'Unauthorized') {
-          navigate('/Login');
-        }
-      });
-  };
+    .then((data) => {
+       if (data && data.id) {
+         // Optionally add manually for "Instant" feel
+         // The 'isDuplicate' check in onmessage will catch the WebSocket echo later
+         setMessages(prev => {
+            if (prev.some(m => m.id === data.id)) return prev;
+            return [...prev, { 
+               id: data.id,
+               type: 'message', 
+               message: tempMessage, 
+               sender_type: 'patient', // Adjust this if the user is a therapist
+               created_at: new Date().toISOString() 
+            }];
+         });
+       }
+    })
+    .catch((err) => console.error("❌ Send failed:", err));
+};
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);

@@ -19,7 +19,15 @@ import Crisis from './pages/Crisis'
 import MySessions from './pages/Mysessions'
 import Messages from './pages/chatRoom'
 import ThSessions from './pages/Thsessions'
-
+import SuperAdminDashboard from './pages/superadmin'
+import PlatformAnalytics from './pages/platformanalytics'
+import SuperAdminLogin from './pages/super_login'
+import OrgAdminLogin from './pages/orgAdmin'
+import OrgAdminDashboard from './pages/orgDashboard'
+import OrgManageTherapists from './pages/OrgManageTherapists';
+import OrgViewMembers from './pages/orgMembers';
+import OrgSettings from './pages/OrgSettings';
+import TherapistPricing from './pages/TherapistPricing'
 
 function App() {
 
@@ -49,7 +57,17 @@ function App() {
       <Route path="/ThSessions" element={< ThSessions/>}/>
       <Route path="/MySessions" element={< MySessions/>}/>
       <Route path="/chatRoom/:sessionId" element={<Messages />} />
-        
+      <Route path="/SuperAdminDashboard" element={<SuperAdminDashboard />} />
+      <Route path="/PlatformAnalytics" element={<PlatformAnalytics />} />
+      <Route path="/SuperAdminLogin" element={<SuperAdminLogin />} />
+      <Route path="/OrgAdminLogin" element={<OrgAdminLogin />} />
+      <Route path='OrgAdminDashboard' element={<OrgAdminDashboard />} />
+      <Route path='/OrgManageTherapists' element={<OrgManageTherapists />} />
+      <Route path='/OrgViewMembers' element={<OrgViewMembers />} />
+      <Route path='/OrgSettings' element={<OrgSettings />} />
+      <Route path='/TherapistPricing' element={<TherapistPricing />} />
+
+
       
 
     </Routes>

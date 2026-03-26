@@ -9,6 +9,8 @@ from therapy.models import therapists
 from patients.models import patient
 from datetime import datetime, timedelta, date
 import json
+from patients.utils import send_booking_confirmation_email
+import uuid
 
 
 @api_view(['POST'])
@@ -278,4 +280,171 @@ def todays_sessions(request):
         
     except Exception as e:
         print(f"Error fetching today's sessions: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
+# consultation/views.py
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_session(request):
+    try:
+        user = request.user
+        patient_profile = patient.objects.get(user=user)
+
+        data = request.data
+
+        therapist_id = data.get('therapist_id')
+        reason_category = data.get('reason_category')
+        reason_details = data.get('reason_details', '')
+        duration_minutes = int(data.get('duration_minutes', 60))
+        frequency = data.get('frequency', 'once')
+        date_str = data.get('date')
+        time_str = data.get('time')
+
+        if not all([therapist_id, reason_category, date_str, time_str]):
+            return JsonResponse({'error': 'Missing required fields'}, status=400)
+
+        therapist = therapists.objects.select_related('organization').get(id=therapist_id)
+        # Validation
+        if not all([therapist_id, reason_category, date_str, time_str]):
+            return JsonResponse({'error': 'Missing required fields'}, status=400)
+        
+        # Check for existing active session
+        active_session = Sessions.objects.filter(
+            patient=patient_profile,
+            therapist_id=therapist_id,
+            status__in=['scheduled', 'active']
+        ).first()
+        
+        if active_session and not active_session.is_expired():
+            return JsonResponse({
+                'error': f'You already have an active session with this therapist on {active_session.day} at {active_session.time}.',
+                'existing_session_id': active_session.id
+            }, status=400)
+        
+
+        session_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        session_time = datetime.strptime(time_str, '%H:%M').time()
+
+        # Frequency handling
+        session_counts = {
+            'once': 1,
+            'weekly-2': 2,
+            'weekly-4': 4,
+            'weekly-8': 8
+        }
+        session_count = session_counts.get(frequency, 1)
+
+        created_sessions = []
+        current_date = session_date
+
+        # Generate ONE booking reference for all sessions
+        booking_reference = f"HS-{uuid.uuid4().hex[:8].upper()}"
+
+        # ============================================
+        # DETERMINE IF SESSION IS FREE
+        # ============================================
+        is_free = False
+        if patient_profile.organization and therapist.organization:
+            # Both have organizations - check if same
+            is_free = (patient_profile.organization.id == therapist.organization.id)
+        
+        # ============================================
+        # CALCULATE PRICING
+        # ============================================
+        if is_free:
+            price_per_session = 0
+        elif therapist.organization:
+            # Organization therapist accepting public patients
+            base_rate = float(therapist.organization.public_session_rate) if hasattr(therapist.organization, 'public_session_rate') else 4000.0
+            # Apply duration multiplier
+            if duration_minutes == 45:
+                price_per_session = base_rate * 0.75
+            else:
+                price_per_session = base_rate
+        else:
+            # Independent therapist
+            if duration_minutes == 45:
+                price_per_session = float(therapist.session_rate_45) if hasattr(therapist, 'session_rate_45') else 2500.0
+            else:
+                price_per_session = float(therapist.session_rate_60) if hasattr(therapist, 'session_rate_60') else 3000.0
+
+        total_cost = price_per_session * session_count
+
+        print("\n" + "="*60)
+        print("CREATE SESSION - PRICING")
+        print("="*60)
+        print(f"Patient: {patient_profile.firstName} (Org: {patient_profile.organization.name if patient_profile.organization else 'Independent'})")
+        print(f"Therapist: Dr. {therapist.firstName} (Org: {therapist.organization.name if therapist.organization else 'Independent'})")
+        print(f"Is Free: {is_free}")
+        print(f"Duration: {duration_minutes} minutes")
+        print(f"Price per session: KES {price_per_session}")
+        print(f"Number of sessions: {session_count}")
+        print(f"Total cost: KES {total_cost}")
+        print("="*60 + "\n")
+
+        # Create sessions
+        for i in range(session_count):
+            # Check availability
+            exists = Sessions.objects.filter(
+                therapist=therapist,
+                day=current_date,
+                time=session_time,
+                status__in=['scheduled', 'active']
+            ).exists()
+
+            if exists:
+                return JsonResponse({
+                    'error': f"Slot already booked on {current_date}"
+                }, status=400)
+
+            booking = Sessions.objects.create(
+                therapist=therapist,
+                patient=patient_profile,
+                day=current_date,
+                time=session_time,
+                reason_category=reason_category,
+                reason=reason_details,
+                duration_minutes=duration_minutes,
+                status='scheduled'
+            )
+
+            created_sessions.append(booking)
+            current_date += timedelta(days=7)
+
+        # ============================================
+        # SEND EMAIL
+        # ============================================
+        email_data = {
+            'patient_email': user.email,
+            'patient_name': f"{patient_profile.firstName} {patient_profile.lastName}",
+            'therapist_name': f"Dr. {therapist.firstName} {therapist.lastName}",
+            'therapist_specialty': therapist.specialty_1 or 'General Therapy',
+            'session_date': date_str,
+            'session_time': time_str,
+            'duration_minutes': duration_minutes,
+            'session_cost': total_cost,
+            'is_free': is_free,
+            'organization_name': patient_profile.organization.name if patient_profile.organization else None,
+            'booking_reference': booking_reference,
+            'reason_category': reason_category
+        }
+
+        send_booking_confirmation_email(email_data)
+
+        return JsonResponse({
+            'success': True,
+            'message': f'{session_count} session(s) booked',
+            'booking_reference': booking_reference,
+            'is_free': is_free,
+            'total_cost': total_cost
+        })
+
+    except patient.DoesNotExist:
+        return JsonResponse({'error': 'Patient profile not found'}, status=404)
+    except therapists.DoesNotExist:
+        return JsonResponse({'error': 'Therapist not found'}, status=404)
+    except Exception as e:
+        print("❌ Error:", e)
+        import traceback
+        traceback.print_exc()
         return JsonResponse({'error': str(e)}, status=500)

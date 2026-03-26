@@ -12,7 +12,9 @@ from .models import therapists, TherapistAvailability
 from django.core.mail import EmailMessage
 from datetime import datetime, timedelta, time, date
 from django.conf import settings
+from rest_framework.permissions import AllowAny
 import logging
+import traceback
 
 
 def Therapists_lists(request):
@@ -346,7 +348,10 @@ def get_therapist_availability_for_patient(request, therapist_id):
 
 logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
+
 @api_view(['POST'])
+@permission_classes([AllowAny])  # Allow anyone to apply
 def therapist_apply(request):
     """
     Handle therapist application submissions.
@@ -359,6 +364,16 @@ def therapist_apply(request):
         email = request.data.get('email', '').strip()
         phone = request.data.get('phone', '').strip()
         specialties = request.data.getlist('specialties')
+        
+        print("\n" + "="*60)
+        print("THERAPIST APPLICATION RECEIVED")
+        print("="*60)
+        print(f"Name: {first_name} {last_name}")
+        print(f"Email: {email}")
+        print(f"Phone: {phone}")
+        print(f"Specialties: {specialties}")
+        print(f"Profile pic: {'Yes' if request.FILES.get('profile_pic') else 'No'}")
+        print(f"Documents: {len(request.FILES.getlist('documents'))}")
         
         # Validation
         if not all([first_name, last_name, email, phone]):
@@ -373,6 +388,22 @@ def therapist_apply(request):
                 'error': 'Please select exactly 3 specialties'
             }, status=400)
         
+        # Format specialty labels
+        specialty_labels = {
+            'anxiety_stress': 'Anxiety / Stress',
+            'depression': 'Depression',
+            'trauma_ptsd': 'Trauma / PTSD',
+            'relationship_issues': 'Relationship Issues',
+            'self_esteem': 'Self-esteem Issues',
+            'burnout': 'Burnout / Work-related Stress',
+            'grief_loss': 'Grief / Loss',
+            'family_problems': 'Family Problems',
+            'substance_use': 'Substance Use',
+            'academic_pressure': 'Academic Pressure'
+        }
+        
+        formatted_specialties = [specialty_labels.get(s, s) for s in specialties]
+        
         # Compose email
         email_body = f"""
 New Therapist Application Received
@@ -386,7 +417,7 @@ Phone: {phone}
 
 SPECIALTIES:
 ------------
-{chr(10).join(f"• {specialty}" for specialty in specialties)}
+{chr(10).join(f"• {specialty}" for specialty in formatted_specialties)}
 
 ATTACHMENTS:
 ------------
@@ -396,13 +427,17 @@ Documents: {len(request.FILES.getlist('documents'))} file(s) attached
 ---
 This is an automated email from HeadSpace Therapist Application System.
 Please review the application and attachments, then contact the applicant.
+
+Reply to this email to contact: {email}
         """
         
+        print("\nComposing email...")
+        
         email_msg = EmailMessage(
-            subject=f'New Therapist Application - {first_name} {last_name}',
+            subject=f'🩺 New Therapist Application - {first_name} {last_name}',
             body=email_body,
-            from_email=settings.DEFAULT_FROM_EMAIL,  # Configure in settings.py
-            to=['chelsfavor@gmail.com'],
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=['chelsfavor@gmail.com'],  # Your receiving email
             reply_to=[email]  # Allow easy reply to applicant
         )
         
@@ -414,7 +449,7 @@ Please review the application and attachments, then contact the applicant.
                 profile_pic.read(),
                 profile_pic.content_type
             )
-            logger.info(f"Profile pic attached: {profile_pic.name}")
+            print(f"✓ Profile pic attached: {profile_pic.name}")
         
         # Attach documents
         documents = request.FILES.getlist('documents')
@@ -424,12 +459,16 @@ Please review the application and attachments, then contact the applicant.
                 doc.read(),
                 doc.content_type
             )
-            logger.info(f"Document attached: {doc.name}")
+            print(f"✓ Document attached: {doc.name}")
         
         # Send email
+        print("\nSending email...")
         email_msg.send(fail_silently=False)
         
-        logger.info(f"Application submitted successfully: {email}")
+        print("✅ Email sent successfully!")
+        print("="*60 + "\n")
+        
+        logger.info(f"Therapist application submitted: {email}")
         
         return Response({
             'success': True,
@@ -437,8 +476,138 @@ Please review the application and attachments, then contact the applicant.
         }, status=200)
         
     except Exception as e:
+        print(f"\n❌ ERROR: {e}")
+        import traceback
+        traceback.print_exc()
+        print("="*60 + "\n")
+        
         logger.error(f"Therapist application error: {str(e)}", exc_info=True)
         return Response({
             'success': False,
-            'error': 'Failed to submit application. Please try again.'
+            'error': f'Failed to submit application: {str(e)}'
         }, status=500)
+
+# therapy/views.py
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_therapist_pricing(request):
+    """Get pricing settings for the logged-in therapist"""
+    
+    try:
+        # Get therapist profile
+        therapist = therapists.objects.get(user=request.user)
+        
+        print("\n" + "="*60)
+        print("GET THERAPIST PRICING")
+        print("="*60)
+        print(f"Therapist: Dr. {therapist.firstName} {therapist.lastName}")
+        print(f"Organization: {therapist.organization.name if therapist.organization else 'Independent'}")
+        
+        # Check if therapist is independent
+        if therapist.organization:
+            return JsonResponse({
+                'error': 'Only independent therapists can set their own pricing',
+                'message': 'Your pricing is managed by your organization'
+            }, status=403)
+        
+        print(f"45-min rate: KES {therapist.session_rate_45}")
+        print(f"60-min rate: KES {therapist.session_rate_60}")
+        print("="*60 + "\n")
+        
+        return JsonResponse({
+            'therapist': {
+                'id': therapist.id,
+                'name': f"Dr. {therapist.firstName} {therapist.lastName}",
+                'email': therapist.user.email,  # ✅ FIXED: Get email from User model
+                'phone': therapist.phoneNumber,
+                'is_independent': True
+            },
+            'pricing': {
+                'session_rate_45': float(therapist.session_rate_45),
+                'session_rate_60': float(therapist.session_rate_60)
+            }
+        })
+        
+    except therapists.DoesNotExist:
+        print("❌ Therapist profile not found")
+        return JsonResponse({'error': 'Therapist profile not found'}, status=404)
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        traceback.print_exc()
+        return JsonResponse({'error': str(e)}, status=500)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_therapist_pricing(request):
+    """Update pricing settings for the logged-in therapist"""
+    
+    try:
+        # Get therapist profile
+        therapist = therapists.objects.get(user=request.user)
+        
+        print("\n" + "="*60)
+        print("UPDATE THERAPIST PRICING")
+        print("="*60)
+        print(f"Therapist: Dr. {therapist.firstName} {therapist.lastName}")
+        
+        # Check if therapist is independent
+        if therapist.organization:
+            return JsonResponse({
+                'error': 'Only independent therapists can set their own pricing',
+                'message': 'Your pricing is managed by your organization'
+            }, status=403)
+        
+        data = request.data
+        
+        # Get new rates
+        new_rate_45 = data.get('session_rate_45')
+        new_rate_60 = data.get('session_rate_60')
+        
+        # Validate rates
+        if new_rate_45 is None or new_rate_60 is None:
+            return JsonResponse({'error': 'Both session rates are required'}, status=400)
+        
+        try:
+            new_rate_45 = float(new_rate_45)
+            new_rate_60 = float(new_rate_60)
+        except ValueError:
+            return JsonResponse({'error': 'Invalid rate values'}, status=400)
+        
+        if new_rate_45 < 1000 or new_rate_60 < 1000:
+            return JsonResponse({
+                'error': 'Session rates must be at least KES 1,000'
+            }, status=400)
+        
+        if new_rate_60 <= new_rate_45:
+            return JsonResponse({
+                'error': '60-minute sessions must cost more than 45-minute sessions'
+            }, status=400)
+        
+        # Update rates
+        old_rate_45 = therapist.session_rate_45
+        old_rate_60 = therapist.session_rate_60
+        
+        therapist.session_rate_45 = new_rate_45
+        therapist.session_rate_60 = new_rate_60
+        therapist.save()
+        
+        print(f"✓ 45-min rate: KES {old_rate_45} → KES {new_rate_45}")
+        print(f"✓ 60-min rate: KES {old_rate_60} → KES {new_rate_60}")
+        print("✅ Pricing updated successfully")
+        print("="*60 + "\n")
+        
+        return JsonResponse({
+            'message': 'Pricing updated successfully',
+            'pricing': {
+                'session_rate_45': float(therapist.session_rate_45),
+                'session_rate_60': float(therapist.session_rate_60)
+            }
+        })
+        
+    except therapists.DoesNotExist:
+        print("❌ Therapist profile not found")
+        return JsonResponse({'error': 'Therapist profile not found'}, status=404)
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        traceback.print_exc()
+        return JsonResponse({'error': str(e)}, status=500)
