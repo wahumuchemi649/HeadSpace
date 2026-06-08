@@ -377,4 +377,8 @@ def save_notes(request, session_id):
         'updated_at': notes.updated_at.isoformat()
     })
 def health_check(request):
-    return HttpResponse("OK", status=200)    
+    try:
+        Patients.objects.exists()
+        return HttpResponse("OK", status=200)
+    except Exception as e:    
+        return HttpResponse(f"Database Error: {str(e)}", status=500)
