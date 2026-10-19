@@ -1,0 +1,452 @@
+/* ==========================================================================
+   SignIn.css - Afyangu / SHA Two-Pane Registration Design System
+   ========================================================================== */
+
+.signin-page-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  font-family: inherit;
+  background-color: #f8fafc;
+  box-sizing: border-box;
+}
+
+/* =========================================
+   LEFT PANE - BRANDING & HERO (Image 2)
+========================================= */
+
+.signin-left-pane {
+  flex: 0 0 46%;
+  background: linear-gradient(160deg, #edf5fb 0%, #e2effa 100%);
+  padding: 50px 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  border-right: 1px solid #e2e8f0;
+  box-sizing: border-box;
+}
+
+.signin-left-content {
+  max-width: 500px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.signin-brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.signin-brand-icon {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.signin-brand-link:hover .signin-brand-icon {
+  transform: scale(1.05);
+}
+
+.signin-brand-text {
+  font-size: 24px;
+  font-weight: 800;
+  color: #025492;
+  letter-spacing: -0.4px;
+}
+
+.signin-hero-text h1 {
+  font-size: 34px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.25;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.5px;
+}
+
+.signin-hero-text p {
+  font-size: 15.5px;
+  color: #475569;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.signin-hero-image-wrap {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.signin-hero-image {
+  width: 100%;
+  max-height: 260px;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: 0 12px 28px -6px rgba(2, 84, 146, 0.12);
+  border: 3px solid #ffffff;
+}
+
+/* =========================================
+   RIGHT PANE - REGISTRATION FORM
+========================================= */
+
+.signin-right-pane {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 30px;
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+
+.signin-form-card {
+  width: 100%;
+  max-width: 440px;
+}
+
+.signin-header {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.signin-header h2 {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.4px;
+}
+
+.signin-header p {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.signin-alert-banner {
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #b91c1c;
+  margin-bottom: 18px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.clean-signin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-row-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.form-field-group {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+  gap: 6px;
+}
+
+.form-field-group label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #334155;
+  text-align: left !important;
+  display: block;
+  width: 100%;
+}
+
+.input-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.field-icon-left {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 17px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.clean-input,
+.clean-phone-input,
+.clean-password-input {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  height: 44px;
+  padding: 0 14px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.clean-input.has-icon {
+  padding-left: 44px !important;
+}
+
+.clean-input::placeholder,
+.clean-phone-input::placeholder,
+.clean-password-input::placeholder {
+  color: #94a3b8;
+}
+
+.clean-input:focus,
+.clean-phone-input:focus,
+.clean-password-input:focus {
+  outline: none;
+  border-color: #025492;
+  box-shadow: 0 0 0 3px rgba(2, 84, 146, 0.14);
+}
+
+.input-error {
+  border-color: #ef4444 !important;
+}
+
+.field-error-text {
+  font-size: 12px;
+  color: #ef4444;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+/* Phone input with +254 country code badge */
+.clean-phone-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #ffffff;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.clean-phone-wrapper:focus-within {
+  border-color: #025492;
+  box-shadow: 0 0 0 3px rgba(2, 84, 146, 0.14);
+}
+
+.clean-phone-prefix {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 12px;
+  background-color: #f8fafc;
+  border-right: 1px solid #cbd5e1;
+  height: 42px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.country-flag {
+  font-size: 16px;
+}
+
+.country-code {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.clean-phone-wrapper .clean-phone-input {
+  border: none;
+  border-radius: 0;
+  height: 42px;
+  padding: 0 12px;
+  background: transparent !important;
+}
+
+.clean-phone-wrapper .clean-phone-input:focus {
+  box-shadow: none;
+}
+
+/* Password input with eye toggle */
+.clean-password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #ffffff;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.clean-password-wrapper:focus-within {
+  border-color: #025492;
+  box-shadow: 0 0 0 3px rgba(2, 84, 146, 0.14);
+}
+
+.clean-password-wrapper .clean-password-input {
+  border: none;
+  border-radius: 0;
+  height: 42px;
+  padding: 0 44px 0 44px;
+  background: transparent !important;
+  width: 100%;
+}
+
+.clean-password-wrapper .clean-password-input:focus {
+  box-shadow: none;
+}
+
+.clean-password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.clean-password-toggle:hover {
+  color: #025492;
+}
+
+.clean-signin-btn {
+  width: 100%;
+  height: 46px;
+  background: #025492;
+  color: #ffffff;
+  border: none;
+  border-radius: 9999px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(2, 84, 146, 0.25);
+  margin-top: 6px;
+}
+
+.clean-signin-btn:hover {
+  background: #004175;
+  box-shadow: 0 6px 16px rgba(2, 84, 146, 0.35);
+  transform: translateY(-1px);
+}
+
+.clean-signin-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.signin-footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 13.5px;
+  color: #64748b;
+}
+
+.signin-footer-link {
+  color: #025492;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.signin-footer-link:hover {
+  text-decoration: underline;
+}
+
+/* ---------------- Booking Redirection Alert Banner ---------------- */
+.booking-redirect-alert {
+  background: #edf5fb;
+  border: 1px solid #bae6fd;
+  border-left: 4px solid #025492;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.booking-alert-icon {
+  color: #025492;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.booking-alert-content {
+  flex: 1;
+}
+
+.booking-alert-content h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #025492;
+  margin: 0 0 4px 0;
+}
+
+.booking-alert-content p {
+  font-size: 13px;
+  color: #334155;
+  margin: 0 0 8px 0;
+  line-height: 1.45;
+}
+
+.booking-alert-cta-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: #475569;
+}
+
+.booking-alert-link {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #025492;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.booking-alert-link:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .signin-page-layout {
+    flex-direction: column;
+  }
+
+  .signin-left-pane {
+    display: none;
+  }
+
+  .signin-right-pane {
+    padding: 40px 20px;
+  }
+}

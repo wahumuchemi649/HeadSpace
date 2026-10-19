@@ -1,1 +1,29 @@
-.vercel
+# Node & Dependencies
+node_modules/
+FRONTEND/node_modules/
+dist/
+FRONTEND/dist/
+
+# Python & Virtual Environments
+venv/
+BACKEND/venv/
+__pycache__/
+*/__pycache__/
+*.py[cod]
+*$py.class
+*.sqlite3
+db.sqlite3
+BACKEND/db.sqlite3
+
+# Environment Variables & Secrets
+.env
+BACKEND/.env
+FRONTEND/.env
+*.local
+
+# System & IDE
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo

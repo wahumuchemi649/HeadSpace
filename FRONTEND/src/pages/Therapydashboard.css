@@ -1,0 +1,743 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.container {
+  display: flex;
+  min-height: calc(100vh - 70px);
+  background: #f8fafc;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Sidebar Navigation */
+.container .therapyaside,
+.therapyaside {
+  position: fixed;
+  left: 0;
+  top: 70px;
+  width: 260px;
+  height: calc(100vh - 70px);
+  background: white;
+  border-right: 1px solid #e2e8f0;
+  padding: 1.25rem 0;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.02);
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.container .therapyaside h2,
+.therapyaside h2 {
+  color: #025492;
+  font-size: 1.25rem;
+  font-weight: 700;
+  padding: 0 1.25rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 2px solid #edf5fb;
+  padding-bottom: 0.75rem;
+}
+
+.therapyaside ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.therapyaside li {
+  margin: 0.25rem 0.75rem;
+}
+
+.therapyaside .aside-link {
+  text-decoration: none;
+  display: block;
+}
+
+.container .therapyaside li p,
+.container .therapyaside li a,
+.therapyaside li p,
+.therapyaside li a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: #475569;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.container .therapyaside li:hover p,
+.container .therapyaside li:hover a,
+.container .therapyaside .aside-link:hover p,
+.therapyaside li:hover p,
+.therapyaside li:hover a,
+.therapyaside .aside-link:hover p {
+  background: #edf5fb;
+  color: #025492;
+  transform: translateX(3px);
+}
+
+.container main {
+  margin-left: 260px;
+  padding: 1.5rem 2.5rem;
+  width: calc(100% - 260px);
+  min-height: calc(100vh - 70px);
+  box-sizing: border-box;
+}
+
+.container main h1 {
+  color: #025492;
+  font-size: 2rem;
+  margin-bottom: 0.35rem;
+  font-weight: 700;
+}
+
+.container main > p {
+  color: #64748b;
+  font-size: 1rem;
+  margin-bottom: 1.75rem;
+  font-weight: 400;
+}
+
+/* Cards Section */
+.updates {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.cards {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #3d1d77;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.cards::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #3d1d77 0%, #61dafb 100%);
+  transition: width 0.3s ease;
+}
+
+.cards:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(61, 29, 119, 0.15);
+}
+
+.cards:hover::before {
+  width: 100%;
+  opacity: 0.05;
+}
+
+.cards h6 {
+  color: #555;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 1rem;
+}
+
+.cards h1 {
+  color: #3d1d77;
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  line-height: 1;
+}
+
+.cards p {
+  color: #555;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* Upcoming Sessions Container */
+.upcoming-sessions-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-top: 2rem;
+}
+
+.upcoming-sessions-container h2 {
+  color: #3d1d77;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 1rem;
+}
+
+.session-count {
+  background: linear-gradient(135deg, #3d1d77 0%, #61dafb 100%);
+  color: white;
+  padding: 0.3rem 1rem;
+  border-radius: 20px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Sessions List */
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+/* Session Card */
+.session-card {
+  background: #f9f9f9;
+  border: 2px solid #eee;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.session-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #3d1d77 0%, #61dafb 100%);
+}
+
+.session-card:hover {
+  border-color: #61dafb;
+  box-shadow: 0 4px 16px rgba(61, 29, 119, 0.1);
+  transform: translateX(5px);
+}
+
+/* Session Header */
+.session-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid #eee;
+}
+
+.session-date span,
+.session-time span {
+  color: #555;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* Session Details */
+.session-details {
+  margin-bottom: 1rem;
+}
+
+.session-person strong {
+  color: #3d1d77;
+  font-size: 1.3rem;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 0.8rem;
+}
+
+.session-reason {
+  margin-bottom: 0.8rem;
+}
+
+.reason-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #3d1d77 0%, #61dafb 100%);
+  color: white;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.session-notes {
+  color: #555;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0.8rem 0;
+  font-style: italic;
+}
+
+/* Session Meta */
+.session-meta {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.duration {
+  color: #555;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.3rem 0.8rem;
+  background: #eee;
+  border-radius: 8px;
+}
+
+.status {
+  padding: 0.3rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-confirmed {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-pending {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+.status-cancelled {
+  background: #ffebee;
+  color: #c62828;
+}
+
+/* Session Actions */
+.session-actions {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.btn-join {
+  background: linear-gradient(135deg, #3d1d77 0%, #61dafb 100%);
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.btn-join:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(61, 29, 119, 0.3);
+}
+
+.btn-join:active {
+  transform: translateY(0);
+}
+
+/* Loading State */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #555;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+/* Error State */
+.error-state {
+  text-align: center;
+  padding: 3rem;
+  background: #ffebee;
+  border-radius: 12px;
+  border: 2px solid #ef5350;
+}
+
+.error-state p {
+  color: #c62828;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.error-state button {
+  background: #c62828;
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.error-state button:hover {
+  background: #b71c1c;
+}
+
+/* No Sessions State */
+.no-sessions {
+  text-align: center;
+  padding: 3rem;
+  background: #f5f5f5;
+  border-radius: 12px;
+  border: 2px dashed #ccc;
+}
+
+.no-sessions h3 {
+  color: #3d1d77;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.no-sessions p {
+  color: #555;
+  font-size: 1rem;
+}
+
+/* Therapist Sessions List */
+.therapist-sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Scrollbar Styling */
+.therapyaside::-webkit-scrollbar {
+  width: 6px;
+}
+
+.therapyaside::-webkit-scrollbar-track {
+  background: #eee;
+}
+
+.therapyaside::-webkit-scrollbar-thumb {
+  background: #3d1d77;
+  border-radius: 3px;
+}
+
+.therapyaside::-webkit-scrollbar-thumb:hover {
+  background: #61dafb;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .therapyaside {
+    width: 240px;
+  }
+
+  .container main {
+    margin-left: 240px;
+    width: calc(100% - 240px);
+  }
+
+  .updates {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .therapyaside {
+    width: 80px;
+  }
+
+  .therapyaside h2 {
+    font-size: 1rem;
+    padding: 0 0.5rem;
+    text-align: center;
+  }
+
+  .therapyaside li p,
+  .therapyaside li a {
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 1rem 0.5rem;
+    font-size: 0.7rem;
+    text-align: center;
+  }
+
+  .therapyaside li svg {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  .container main {
+    margin-left: 80px;
+    width: calc(100% - 80px);
+    padding: 1.25rem 1rem;
+  }
+
+  .container main h1 {
+    font-size: 1.8rem;
+  }
+
+  .updates {
+    grid-template-columns: 1fr;
+  }
+
+  .session-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .therapyaside {
+    width: 70px;
+  }
+
+  .container main {
+    margin-left: 70px;
+    width: calc(100% - 70px);
+    padding: 1rem;
+  }
+
+  .container main h1 {
+    font-size: 1.5rem;
+  }
+
+  .container main > p {
+    font-size: 0.85rem;
+  }
+
+  .cards h1 {
+    font-size: 2.5rem;
+  }
+
+  .session-card {
+    padding: 1rem;
+  }
+
+  .session-person strong {
+    font-size: 1.1rem;
+  }
+
+  .upcoming-sessions-container {
+    padding: 1rem;
+  }
+
+  .upcoming-sessions-container h2 {
+    font-size: 1.4rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Animation for session cards on load */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.session-card {
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+.session-card:nth-child(1) { animation-delay: 0.1s; }
+.session-card:nth-child(2) { animation-delay: 0.2s; }
+.session-card:nth-child(3) { animation-delay: 0.3s; }
+.session-card:nth-child(4) { animation-delay: 0.4s; }
+.session-card:nth-child(5) { animation-delay: 0.5s; }
+
+/* Print Styles */
+@media print {
+  .therapyaside {
+    display: none;
+  }
+
+  .container main {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .session-card {
+    page-break-inside: avoid;
+  }
+
+  .btn-join {
+    display: none;
+  }
+}
+/* Hamburger Menu Button */
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 80px;
+  left: 1rem;
+  z-index: 1000;
+  background: #025492;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+  flex-direction: column;
+  gap: 5px;
+  box-shadow: 0 4px 12px rgba(2, 84, 146, 0.3);
+  transition: all 0.3s ease;
+}
+
+.hamburger:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(2, 84, 146, 0.4);
+}
+
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 2.5px;
+  background: white;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.hamburger.active span:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 70px;
+  left: 0;
+  width: 100%;
+  height: calc(100vh - 70px);
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 98;
+  backdrop-filter: blur(2px);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .hamburger {
+    display: flex;
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+
+  .therapyaside {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    width: 260px;
+    z-index: 99;
+    top: 70px;
+    height: calc(100vh - 70px);
+  }
+
+  .therapyaside.open {
+    transform: translateX(0);
+  }
+
+  /* Reset sidebar styles for mobile */
+  .therapyaside h2 {
+    font-size: 1.25rem;
+    padding: 0 1.25rem;
+    text-align: left;
+  }
+
+  .therapyaside li p,
+  .therapyaside li a {
+    flex-direction: row;
+    gap: 0.8rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    text-align: left;
+  }
+
+  .therapyaside li svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .container main {
+    margin-left: 0;
+    width: 100%;
+    padding: 3.5rem 1rem 1.5rem;
+  }
+
+  .container main h1 {
+    font-size: 1.6rem;
+  }
+
+  .updates {
+    grid-template-columns: 1fr;
+  }
+
+  .session-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container main {
+    padding: 3.5rem 0.85rem 1rem;
+  }
+
+  .container main h1 {
+    font-size: 1.4rem;
+  }
+
+  .container main > p {
+    font-size: 0.85rem;
+  }
+
+  .cards h1 {
+    font-size: 2.5rem;
+  }
+
+  .session-card {
+    padding: 1rem;
+  }
+
+  .session-person strong {
+    font-size: 1.1rem;
+  }
+
+  .upcoming-sessions-container {
+    padding: 1rem;
+  }
+
+  .upcoming-sessions-container h2 {
+    font-size: 1.4rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
