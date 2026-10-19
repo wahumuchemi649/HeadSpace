@@ -1,0 +1,393 @@
+/* orgAdmin.css - Balanced & Minimized Organization Admin Login */
+
+.org-admin-login-container {
+    display: flex;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f1f5f9;
+}
+
+/* LEFT SIDE - BRANDING */
+.org-admin-login-container .login-left {
+    flex: 0 0 420px;
+    background: linear-gradient(145deg, #3d1d77 0%, #2f155c 60%, #1e0d3b 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 36px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.org-admin-login-container .login-left::before {
+    content: '';
+    position: absolute;
+    width: 360px;
+    height: 360px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(97, 218, 251, 0.15) 0%, transparent 70%);
+    top: 15%;
+    left: 20%;
+    pointer-events: none;
+}
+
+.org-admin-login-container .left-content-wrapper {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 340px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 36px;
+    margin: 0 auto;
+}
+
+.org-brand-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    text-decoration: none;
+    margin-bottom: 8px;
+}
+
+.org-admin-login-container .logo-circle {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(10px);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 4px auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.org-admin-login-container .logo-circle svg {
+    width: 24px;
+    height: 24px;
+    color: white;
+}
+
+.org-brand-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: -0.4px;
+}
+
+.org-admin-login-container .tagline {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    font-weight: 400;
+}
+
+.org-admin-login-container .features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.org-admin-login-container .feature-item {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+}
+
+.org-admin-login-container .feature-icon {
+    width: 38px;
+    height: 38px;
+    background: rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(8px);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.org-admin-login-container .feature-icon svg {
+    width: 18px;
+    height: 18px;
+    color: #61dafb;
+}
+
+.org-admin-login-container .feature-item h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 2px 0;
+    color: white;
+}
+
+.org-admin-login-container .feature-item p {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.75);
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* RIGHT SIDE - MINIMIZED LOGIN FORM */
+.org-admin-login-container .login-right {
+    flex: 1;
+    background-color: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+}
+
+.org-admin-login-container .login-box {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 38px 34px 34px;
+    width: 100%;
+    max-width: 410px;
+    box-shadow: 0 10px 30px -5px rgba(61, 29, 119, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(226, 232, 240, 0.85);
+    box-sizing: border-box;
+}
+
+.org-admin-login-container .login-header {
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.org-admin-login-container .login-header h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1e1b4b;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.4px;
+}
+
+.org-admin-login-container .login-header p {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0;
+}
+
+.org-admin-login-container .error-banner {
+    background: #fef2f2;
+    border: 1px solid #fee2e2;
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #b91c1c;
+    margin-bottom: 18px;
+    font-size: 13.5px;
+}
+
+.org-admin-login-container .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.org-admin-login-container .form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+    gap: 7px;
+}
+
+.org-admin-login-container .form-group label {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #334155;
+    text-align: left !important;
+    align-self: flex-start !important;
+    display: block;
+    width: 100%;
+}
+
+.org-admin-login-container .input-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.org-admin-login-container .field-icon-left {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 18px;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.org-admin-login-container .form-input {
+    width: 100%;
+    height: 46px;
+    padding: 0 16px 0 46px !important;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 14.5px;
+    color: #0f172a;
+    background: #ffffff !important;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.org-admin-login-container .form-input::placeholder {
+    color: #94a3b8;
+}
+
+.org-admin-login-container .form-input:focus {
+    outline: none;
+    border-color: #3d1d77;
+    box-shadow: 0 0 0 3px rgba(61, 29, 119, 0.12);
+}
+
+.org-admin-login-container .password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.org-admin-login-container .password-input-wrapper .form-input {
+    padding: 0 46px 0 46px !important;
+}
+
+.org-admin-login-container .password-toggle-btn {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+    z-index: 3;
+}
+
+.org-admin-login-container .password-toggle-btn:hover {
+    color: #3d1d77;
+}
+
+.org-admin-login-container .login-options-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-top: 2px;
+}
+
+.org-admin-login-container .remember-me-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #64748b;
+    cursor: pointer;
+    user-select: none;
+}
+
+.org-admin-login-container .remember-me-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    accent-color: #3d1d77;
+    cursor: pointer;
+}
+
+.org-portal-badge {
+    font-size: 12px;
+    color: #3d1d77;
+    font-weight: 600;
+}
+
+.org-admin-login-container .login-button {
+    height: 46px;
+    width: 100%;
+    background-color: #3d1d77;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.org-admin-login-container .login-button:hover:not(:disabled) {
+    background-color: #2f155c;
+    box-shadow: 0 4px 14px rgba(61, 29, 119, 0.3);
+    transform: translateY(-1px);
+}
+
+.org-admin-login-container .login-button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.org-admin-login-container .login-footer {
+    margin-top: 24px;
+    text-align: center;
+}
+
+.org-admin-login-container .login-footer p {
+    font-size: 13.5px;
+    color: #64748b;
+    margin: 0;
+}
+
+.org-admin-login-container .login-footer a {
+    color: #3d1d77;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.org-admin-login-container .login-footer a:hover {
+    text-decoration: underline;
+    color: #2f155c;
+}
+
+@media (max-width: 860px) {
+    .org-admin-login-container {
+        flex-direction: column;
+    }
+
+    .org-admin-login-container .login-left {
+        flex: none;
+        width: 100%;
+        padding: 36px 20px;
+        box-sizing: border-box;
+    }
+
+    .org-admin-login-container .left-content-wrapper {
+        align-items: center;
+        text-align: center;
+        max-width: 100%;
+    }
+
+    .org-admin-login-container .features-list {
+        display: none;
+    }
+
+    .org-admin-login-container .login-right {
+        padding: 32px 16px;
+    }
+}
